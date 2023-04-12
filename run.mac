@@ -1,0 +1,10 @@
+/run/numberOfThreads 1
+/run/initialize
+/gun/energy 200 MeV
+/MLC/detector/nlayer 1
+/MLC/detector/yield 30000
+/MLC/detector/add_degrader true
+/MLC/detector/degrader 22.5 cm
+#/gun/position 0 -40 0
+/run/beamOn 100
+

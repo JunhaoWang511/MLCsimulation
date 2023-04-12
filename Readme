@@ -1,0 +1,58 @@
+
+                                Multi-layer LYSO crystal 
+                                ------------------------
+Auther: WangJunhao    Date: 2022/3/27    Reference: /examples/extended/optical/LXe
+
+------------
+Introduction
+------------
+
+This program simulates the energy-resolution property of a multi-layer LYSO crystal 
+
+calorimeter.
+
+-----------------------------
+Geometry and primary particle
+-----------------------------
+
+The main volume is a multi-layer LYSO crystal, wrapped by totally reflective materials.
+
+SiPMs are place by each layers' lateral side.
+
+G4ParticleGun creates high energy protons around 100 MeV, going from the front face, 
+
+producing mainly scintillation photons, and collected by SiPMs.
+
+-------
+Physics
+-------
+
+The physics list is FTFP_BERT, with G4EmStandard_option4 electromagnetic physics and
+
+G4OpticalPhysics.
+
+-----------
+Macro files
+-----------
+
+---------------------------
+List of built-in histograms
+---------------------------
+
+-------------
+How to start?
+-------------
+
+  - execute MLC in 'batch' mode from macro files, e.g.
+    $ ./MLC XXX.mac
+
+  - execute MLC in 'interactive' mode with visualization, e.g.
+    $ ./MLC
+    Then type commands, for instance
+    Session: /run/beamOn 1
+
+-----------------------------------------------
+Detailed Explanation of Geometry Implementation
+-----------------------------------------------
+
+    

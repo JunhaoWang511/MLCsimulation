@@ -61,10 +61,10 @@ void MLCHistoManager::Book()
     analysisManager->CreateH1("stop Y", "stop Y position", 1000, 0, 10);
     
     // photon distribution histograms(1,2,3...)
-    G4int PhotonNumber = G4int(500000./fLayer);
+    G4int PhotonNumber = G4int(300000./fLayer);
     G4cout<<"photonnumber are "<<PhotonNumber<<G4endl;
     G4cout<<"layer number are "<<fLayer<<G4endl;
-    G4String Name = "200MeV_layer";
+    G4String Name = "100MeV_layer";
     for(G4int i=0 ;i < fLayer;i++)
     {
         G4String NameSerial = Name + std::to_string(i+1);
@@ -72,7 +72,7 @@ void MLCHistoManager::Book()
     }
 
     // 0
-    analysisManager->CreateH2("stop X-Z", "stop X-Z position", 100, -5, 5 , 100, -5, 5,"none","none","none","none");
+    analysisManager->CreateH2("stop X-Z", "stop X-Z position", 100, -1.25, 1.25 , 100, -1.25, 1.25,"none","none","none","none");
 
     analysisManager->CreateNtuple("PSDposition_PMTcollection","PSDposition_PMTcollection");
     analysisManager->CreateNtupleDColumn("Pos1X");

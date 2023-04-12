@@ -21,7 +21,7 @@ MLCPrimaryGeneratorAction::MLCPrimaryGeneratorAction()
     fParticleGun->SetParticleDefinition(
         particleTable->FindParticle(particleName = "proton"));
     // Default energy,position,momentum
-    fParticleGun->SetParticleEnergy( 200 * MeV);
+    fParticleGun->SetParticleEnergy( 100 * MeV);
     fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0., 1., 0.));
 }
 
@@ -33,9 +33,9 @@ MLCPrimaryGeneratorAction::~MLCPrimaryGeneratorAction() { delete fParticleGun; }
 
 void MLCPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-    G4double zmax=5*cm,xmax=5*cm;
+    G4double zmax=1.25*cm,xmax=1.25*cm;
     G4double z = zmax*(2*G4UniformRand() - 1);
     G4double x = xmax*(2*G4UniformRand() - 1);
-    fParticleGun->SetParticlePosition(G4ThreeVector(x, -100 * cm, z));
+    fParticleGun->SetParticlePosition(G4ThreeVector(x, -50 * cm, z));
     fParticleGun->GeneratePrimaryVertex(anEvent);
 }

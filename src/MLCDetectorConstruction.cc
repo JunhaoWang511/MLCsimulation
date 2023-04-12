@@ -236,31 +236,31 @@ G4VPhysicalVolume* MLCDetectorConstruction::Construct()
     fFoil_log->SetVisAttributes(foil_va);*/
 
     // Create 4 PSDs(position sensitive detector) 
-    G4double PSD_x = 10. * cm;
+    G4double PSD_x = 2.5 * cm;
     G4double PSD_y = 0.5 * mm;
-    G4double PSD_z = 10. * cm;
+    G4double PSD_z = 2.5 * cm;
 
     fPSD_box = new G4Box("PSD_box",PSD_x/2,PSD_y/2,PSD_z/2);
     fPSD_log = new G4LogicalVolume(fPSD_box,fSI,"PSD_log",0,0,0); 
 
-    fPSD_phy = new G4PVPlacement(0,G4ThreeVector(0,-55.*cm,0), fPSD_log, "PSdetector", fExperimentalHall_log, false, 0);//0th PSD
-    fPSDPositions.push_back(G4ThreeVector(0,-55.*cm,0));
+    fPSD_phy = new G4PVPlacement(0,G4ThreeVector(0,-22.5*cm,0), fPSD_log, "PSdetector", fExperimentalHall_log, false, 0);//0th PSD
+    fPSDPositions.push_back(G4ThreeVector(0,-22.5*cm*cm,0));
 
-    fPSD_phy = new G4PVPlacement(0,G4ThreeVector(0,-50.*cm,0), fPSD_log, "PSdetector", fExperimentalHall_log, false, 1);//1th PSD
-    fPSDPositions.push_back(G4ThreeVector(0,-50.*cm,0));
+    fPSD_phy = new G4PVPlacement(0,G4ThreeVector(0,-20. *cm,0), fPSD_log, "PSdetector", fExperimentalHall_log, false, 1);//1th PSD
+    fPSDPositions.push_back(G4ThreeVector(0,-20.*cm,0));
 
-    fPSD_phy = new G4PVPlacement(0,G4ThreeVector(0,-10.*cm,0), fPSD_log, "PSdetector", fExperimentalHall_log, false, 2);//2th PSD
-    fPSDPositions.push_back(G4ThreeVector(0,-10.*cm,0));
-
-    fPSD_phy = new G4PVPlacement(0,G4ThreeVector(0,-5.*cm,0), fPSD_log, "PSdetector",  fExperimentalHall_log, false, 3);//3th PSD
+    fPSD_phy = new G4PVPlacement(0,G4ThreeVector(0,-5.*cm,0), fPSD_log, "PSdetector", fExperimentalHall_log, false, 2);//2th PSD
     fPSDPositions.push_back(G4ThreeVector(0,-5.*cm,0));
+
+    fPSD_phy = new G4PVPlacement(0,G4ThreeVector(0,-2.5*cm,0), fPSD_log, "PSdetector",  fExperimentalHall_log, false, 3);//3th PSD
+    fPSDPositions.push_back(G4ThreeVector(0,-2.5*cm,0));
     
     // Place degrader in front of scintillator
     if(fDegraderOn)
     {
-        fDegrader_box = new G4Box("degrader_box", 5.*cm , fPolyThick/2 ,  5.*cm);
+        fDegrader_box = new G4Box("degrader_box", 1.25*cm , fPolyThick/2 ,  1.25*cm);
         fDegrader_log = new G4LogicalVolume(fDegrader_box, fPoly , "degrader_log", 0, 0, 0);
-        fDegrader_phy = new G4PVPlacement(0, G4ThreeVector(0 , -30.*cm , 0), fDegrader_log, "degrader", fExperimentalHall_log, false, 0);
+        fDegrader_phy = new G4PVPlacement(0, G4ThreeVector(0 , -12.5*cm , 0), fDegrader_log, "degrader", fExperimentalHall_log, false, 0);
 
         G4VisAttributes* degrader_va = new G4VisAttributes(G4Colour(0.8, 0.8, 0.8));
         degrader_va->SetForceSolid(true);
@@ -530,9 +530,9 @@ void MLCDetectorConstruction::SetDefaults()
 {
     // Resets to default values
 
-    fScint_x = 10. * cm;
-    fScint_y = 6.5 * cm;
-    fScint_z = 10. * cm;
+    fScint_x = 2.5 * cm;
+    fScint_y = 2.5 * cm;
+    fScint_z = 2.5 * cm;
 
     fPmtLength = 3 * mm;
     fPmtThick = 0.5 * mm;

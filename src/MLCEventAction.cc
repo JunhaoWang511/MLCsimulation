@@ -222,13 +222,16 @@ void MLCEventAction::EndOfEventAction(const G4Event* anEvent)
         G4ThreeVector reconPos(0., 0., 0.);
         size_t pmts = pmtHC->entries();
         //G4cout<<"PMT number is"<<pmts<<G4endl;
+        G4int copynumber;
         // Gather info from all PMTs
         for (size_t i = 0; i < pmts; ++i)
         {
+            //G4cout<<"the "<<i<<" pmt's copy number is "<<(*pmtHC)[i]->GetPMTNumber()<<G4endl;
+            copynumber=(*pmtHC)[i]->GetPMTNumber();
             fHitCount += (*pmtHC)[i]->GetPhotonCount();
             //G4cout<<"the "<<i<<"th pmt has photon counts="<<(*pmtHC)[i]->GetPhotonCount()<<G4endl;
-            G4AnalysisManager::Instance()->FillH1(i+1, (*pmtHC)[i]->GetPhotonCount());
-            G4AnalysisManager::Instance()->FillNtupleIColumn(i+8,(*pmtHC)[i]->GetPhotonCount());
+            G4AnalysisManager::Instance()->FillH1(copynumber+1, (*pmtHC)[i]->GetPhotonCount());
+            G4AnalysisManager::Instance()->FillNtupleIColumn(copynumber+8,(*pmtHC)[i]->GetPhotonCount());
             reconPos += (*pmtHC)[i]->GetPMTPos() * (*pmtHC)[i]->GetPhotonCount();
             if ((*pmtHC)[i]->GetPhotonCount() >= fPMTThreshold)
             {

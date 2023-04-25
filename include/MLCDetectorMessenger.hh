@@ -25,10 +25,10 @@ class MLCDetectorMessenger : public G4UImessenger
   private:
   MLCDetectorConstruction* fMLCDetector;
   G4UIdirectory* fDetectorDir;
-  G4UIcmdWithAnInteger* fNLayerCmd;
   G4UIcmdWithADouble* fScintyieldCmd;
   G4UIcmdWithADoubleAndUnit* fPolythickCmd;
   G4UIcmdWithABool* fDegraderCmd;
+  G4UIcmdWithABool* fLayerCmd;
   G4UIcmdWithAnInteger* fFileidCmd;
 };
 

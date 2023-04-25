@@ -35,7 +35,6 @@ public:
 	void SetPMTLength(G4double);
 	void SetPMTThickness(G4double);
 	void SetDefaults();
-	void SetLayers(G4int);
 	void SetPolyThickness(G4double);
 	void SetFileId(G4int);
 	//	void SetSaveThreshold(G4int);
@@ -45,12 +44,12 @@ public:
 	G4double GetScintY() const { return fScint_y; }
 	G4double GetScintZ() const { return fScint_z; }
 	G4double GetPMTLength() const { return fPmtLength; }
-	G4double GetPMTThickness() const { return fPmtThick; }
-    G4int GetLayers() const { return fLayer; }
 	G4int GetFileId() const {return fFileId;}
+	G4bool GetLayerOn() const {return fLayerOn;}
 	void SetHousingReflectivity(G4double);
 	G4double GetHousingReflectivity() const { return fRefl; }
 	void SetDegraderOn(G4bool);
+	void SetLayerOn(G4bool);
 
 	/*void SetMainVolumeOn(G4bool b);
 	G4bool GetMainVolumeOn() const { return fMainVolumeOn; }*/
@@ -113,16 +112,17 @@ private:
 	G4Material* fPoly; 
 	// Geometry
 	G4double fPmtLength;
-	G4double fPmtThick;
+	G4double fWinThick;
+	G4double fPmtGap;
 	G4double fPolyThick;
 	G4double fScint_x;
 	G4double fScint_y;
 	G4double fScint_z;
 
-    G4int fLayer;
 	G4int fFileId;
 	G4double fRefl;
 	G4bool fDegraderOn;
+	G4bool fLayerOn;
 	//G4bool fMainVolumeOn;
 
 	//MLCMainVolume* fMainVolume;

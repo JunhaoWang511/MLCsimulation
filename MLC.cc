@@ -68,7 +68,7 @@ int main(int argc, char** argv)
     runManager->SetUserInitialization(physicsList);
 
     runManager->SetUserInitialization(new MLCActionInitialization(det));
-    //runManager->SetNumberOfThreads(1);
+    runManager->SetNumberOfThreads(1);
 
     // initialize visualization
     G4VisManager* visManager = new G4VisExecutive;

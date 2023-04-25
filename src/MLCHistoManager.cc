@@ -8,31 +8,34 @@
 MLCHistoManager::MLCHistoManager()
 //    : fFileName("MLC")
 {
-    const MLCDetectorConstruction* fDetector = static_cast<const MLCDetectorConstruction*> (G4RunManager::GetRunManager()->GetUserDetectorConstruction());
-    fLayer = fDetector->GetLayers();
+    const MLCDetectorConstruction *fDetector = static_cast<const MLCDetectorConstruction *>(G4RunManager::GetRunManager()->GetUserDetectorConstruction());
+    if (fDetector->GetLayerOn())
+        fLayer = 4;
+    else
+        fLayer = 1;
     G4int Fileid = fDetector->GetFileId();
-    //G4cout<<"file id is "<<Fileid<<G4endl;
+    // G4cout<<"file id is "<<Fileid<<G4endl;
     G4int runid = G4RunManager::GetRunManager()->GetNonConstCurrentRun()->GetRunID();
-    fFileName = "./output/MLC_" +std::to_string(Fileid)/*+"_"+ std::to_string(runid)*/;
+    fFileName = "./output/MLC_" + std::to_string(Fileid) /*+"_"+ std::to_string(runid)*/;
     Book();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-MLCHistoManager::~MLCHistoManager() {delete G4AnalysisManager::Instance();}
+MLCHistoManager::~MLCHistoManager() { delete G4AnalysisManager::Instance(); }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void MLCHistoManager::Book()
 {
     // Create or get analysis manager
-    G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+    G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
     analysisManager->SetDefaultFileType("root");
     analysisManager->SetFileName(fFileName);
     analysisManager->SetVerboseLevel(1);
-    analysisManager->SetActivation(true);  // enable inactivation of histograms
+    analysisManager->SetActivation(true); // enable inactivation of histograms
     analysisManager->SetNtupleMerging(true);
-    
+
     // Define histogram indices, titles
 
     // Default values (to be reset via /analysis/h1/set command)
@@ -59,33 +62,33 @@ void MLCHistoManager::Book()
 
     // 0
     analysisManager->CreateH1("stop Y", "stop Y position", 1000, 0, 10);
-    
+
     // photon distribution histograms(1,2,3...)
-    G4int PhotonNumber = G4int(300000./fLayer);
-    G4cout<<"photonnumber are "<<PhotonNumber<<G4endl;
-    G4cout<<"layer number are "<<fLayer<<G4endl;
-    G4String Name = "100MeV_layer";
-    for(G4int i=0 ;i < fLayer;i++)
+    G4int PhotonNumber = 100000;
+    // G4cout << "photonnumber are " << PhotonNumber << G4endl;
+    // G4cout << "layer number are " << fLayer << G4endl;
+    G4String Name = "ChNo.";
+    for (G4int i = 0; i < 16; i++)
     {
-        G4String NameSerial = Name + std::to_string(i+1);
-        analysisManager->CreateH1(NameSerial, "photon_number_distribution", PhotonNumber, 0, PhotonNumber,"none","none");
+        G4String NameSerial = Name + std::to_string(i + 1);
+        analysisManager->CreateH1(NameSerial, "photon_number_distribution", PhotonNumber, 0, PhotonNumber, "none", "none");
     }
 
     // 0
-    analysisManager->CreateH2("stop X-Z", "stop X-Z position", 100, -1.25, 1.25 , 100, -1.25, 1.25,"none","none","none","none");
+    analysisManager->CreateH2("stop X-Z", "stop X-Z position", 100, -1.25, 1.25, 100, -1.25, 1.25, "none", "none", "none", "none");
 
-    analysisManager->CreateNtuple("PSDposition_PMTcollection","PSDposition_PMTcollection");
-    analysisManager->CreateNtupleDColumn("Pos1X");
-    analysisManager->CreateNtupleDColumn("Pos1Z");
+    analysisManager->CreateNtuple("PSDposition_PMTcollection", "PSDposition_PMTcollection");
+    analysisManager->CreateNtupleDColumn("Pos1X");//0
+    analysisManager->CreateNtupleDColumn("Pos1Z");//1
     analysisManager->CreateNtupleDColumn("Pos2X");
     analysisManager->CreateNtupleDColumn("Pos2Z");
     analysisManager->CreateNtupleDColumn("Pos3X");
     analysisManager->CreateNtupleDColumn("Pos3Z");
     analysisManager->CreateNtupleDColumn("Pos4X");
-    analysisManager->CreateNtupleDColumn("Pos4Z");
-    for(G4int i=0 ;i < fLayer;i++)
+    analysisManager->CreateNtupleDColumn("Pos4Z");//7
+    for (G4int i = 0; i < 16; i++)//8-23
     {
-        G4String Namei = "Photon" + std::to_string(i+1);
+        G4String Namei = "Photon" + std::to_string(i + 1);
         analysisManager->CreateNtupleIColumn(Namei);
     }
     analysisManager->FinishNtuple();
@@ -95,10 +98,10 @@ void MLCHistoManager::Book()
     {
         analysisManager->SetH1Activation(i, false);
     }
-    //analysisManager->SetH1Activation(0, true);
-    for(G4int i=0 ;i < fLayer;i++)
+    // analysisManager->SetH1Activation(0, true);
+    for (G4int i = 0; i < 16; i++)
     {
-        analysisManager->SetH1Activation(i+1, true);
+        analysisManager->SetH1Activation(i + 1, true);
     }
     analysisManager->SetH2Activation(0, false);
 }

@@ -20,12 +20,6 @@ MLCDetectorMessenger::MLCDetectorMessenger(MLCDetectorConstruction* detector)
     // Setup a command directory for detector controls with guidance
     fDetectorDir = new G4UIdirectory("/MLC/detector/");
     fDetectorDir->SetGuidance("Detector geometry control");
-    //UIComand to set scintilator layer number and each layer with a PMT
-    fNLayerCmd = new G4UIcmdWithAnInteger("/MLC/detector/nlayer",this);
-    fNLayerCmd->SetGuidance("Set the number of layers along the y-dimension.");
-    fNLayerCmd->SetParameterName("nlayer", false);
-    fNLayerCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
-    fNLayerCmd->SetToBeBroadcasted(false);
     //UICommand to set scintillation yield for LYSO crystal
     fScintyieldCmd = new G4UIcmdWithADouble("/MLC/detector/yield",this);
     fScintyieldCmd->SetGuidance("Set the scintillation yield for LYSO in photons/MeV.");
@@ -39,7 +33,7 @@ MLCDetectorMessenger::MLCDetectorMessenger(MLCDetectorConstruction* detector)
     fPolythickCmd->SetDefaultUnit("cm");
     fPolythickCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
     fPolythickCmd->SetToBeBroadcasted(false);
-    //UICommand to set degrader on/false
+    //UICommand to set degrader on/off
     fDegraderCmd = new G4UIcmdWithABool("/MLC/detector/add_degrader",this);
     fDegraderCmd->SetGuidance("Add or remove a degrader.");
     fDegraderCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
@@ -50,6 +44,11 @@ MLCDetectorMessenger::MLCDetectorMessenger(MLCDetectorConstruction* detector)
     fFileidCmd->SetParameterName("fileId", false);
     fFileidCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
     fFileidCmd->SetToBeBroadcasted(false);
+    //UICommand to set divide layer on/off
+    fLayerCmd = new G4UIcmdWithABool("/MLC/detector/divide_layer",this);
+    fDegraderCmd->SetGuidance("divide scintillator into 4 layers.");
+    fDegraderCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+    fDegraderCmd->SetToBeBroadcasted(false);
  }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -57,22 +56,18 @@ MLCDetectorMessenger::MLCDetectorMessenger(MLCDetectorConstruction* detector)
  MLCDetectorMessenger::~MLCDetectorMessenger()
  {
     delete fDetectorDir;
-    delete fNLayerCmd;
     delete fScintyieldCmd;
     delete fPolythickCmd;
     delete fDegraderCmd;
     delete fFileidCmd;
+    delete fLayerCmd;
  }
 
  //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
  void MLCDetectorMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
  {
-    if(command == fNLayerCmd)
-    {
-      fMLCDetector->SetLayers(fNLayerCmd->GetNewIntValue(newValue));
-    }
-    else if(command == fScintyieldCmd)
+    if(command == fScintyieldCmd)
     {
       fMLCDetector->SetMainScintYield(fScintyieldCmd->GetNewDoubleValue(newValue));
     }
@@ -87,6 +82,10 @@ MLCDetectorMessenger::MLCDetectorMessenger(MLCDetectorConstruction* detector)
     else if(command == fFileidCmd)
     {
       fMLCDetector->SetFileId(fFileidCmd->GetNewIntValue(newValue));
+    }
+    else if(command==fLayerCmd)
+    {
+      fMLCDetector->SetLayerOn(fLayerCmd->GetNewBoolValue(newValue));
     }
     else{G4cout<<"command format is wrong"<<G4endl;}
  }

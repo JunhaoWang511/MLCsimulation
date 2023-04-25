@@ -101,7 +101,7 @@ void MLCHistoManager::Book()
     // analysisManager->SetH1Activation(0, true);
     for (G4int i = 0; i < 16; i++)
     {
-        analysisManager->SetH1Activation(i + 1, true);
+        analysisManager->SetH1Activation(i + 1, false);
     }
     analysisManager->SetH2Activation(0, false);
 }

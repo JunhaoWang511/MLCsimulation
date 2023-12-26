@@ -14,11 +14,8 @@ MLCTrackingAction::MLCTrackingAction() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void MLCTrackingAction::PreUserTrackingAction(const G4Track* aTrack)
+void MLCTrackingAction::PreUserTrackingAction(const G4Track *aTrack)
 {
-    // Let this be up to the user via vis.mac
-    //  fpTrackingManager->SetStoreTrajectory(true);
-
     // Use custom trajectory class
     fpTrackingManager->SetTrajectory(new MLCTrajectory(aTrack));
 
@@ -28,12 +25,12 @@ void MLCTrackingAction::PreUserTrackingAction(const G4Track* aTrack)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void MLCTrackingAction::PostUserTrackingAction(const G4Track* aTrack)
+void MLCTrackingAction::PostUserTrackingAction(const G4Track *aTrack)
 {
-    MLCTrajectory* trajectory =
-        (MLCTrajectory*)fpTrackingManager->GimmeTrajectory();
-    MLCUserTrackInformation* trackInformation =
-        (MLCUserTrackInformation*)aTrack->GetUserInformation();
+    MLCTrajectory *trajectory =
+        (MLCTrajectory *)fpTrackingManager->GimmeTrajectory();
+    MLCUserTrackInformation *trackInformation =
+        (MLCUserTrackInformation *)aTrack->GetUserInformation();
 
     // Let's choose to draw only the photons that hit a pmt!!
     /*if (aTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
@@ -43,7 +40,7 @@ void MLCTrackingAction::PostUserTrackingAction(const G4Track* aTrack)
     }
     // draw all other (not optical photon) trajectories
     else*/
-        trajectory->SetDrawTrajectory(true);
+    trajectory->SetDrawTrajectory(true);
 
     if (trackInformation->GetForceDrawTrajectory())
         trajectory->SetDrawTrajectory(true);

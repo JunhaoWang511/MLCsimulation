@@ -14,11 +14,11 @@ public:
 	MLCScintSD(G4String name);
 	~MLCScintSD();
 
-	void Initialize(G4HCofThisEvent*) override;
-	G4bool ProcessHits(G4Step* aStep, G4TouchableHistory*) override;
+	void Initialize(G4HCofThisEvent *) override;
+	G4bool ProcessHits(G4Step *aStep, G4TouchableHistory *) override;
 
 private:
-	MLCScintHitsCollection* fScintCollection;
+	MLCScintHitsCollection *fScintCollection;
 	G4int fHitsCID;
 };
 

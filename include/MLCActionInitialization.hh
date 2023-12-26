@@ -8,15 +8,14 @@ class MLCDetectorConstruction;
 class MLCActionInitialization : public G4VUserActionInitialization
 {
 public:
-	MLCActionInitialization(const MLCDetectorConstruction* det);
+	MLCActionInitialization(const MLCDetectorConstruction *det);
 	~MLCActionInitialization();
 
 	void BuildForMaster() const override;
 	void Build() const override;
 
 private:
-	const MLCDetectorConstruction* fDetector;
+	const MLCDetectorConstruction *fDetector;
 };
 
 #endif
-

@@ -12,33 +12,28 @@
 #include "G4VisAttributes.hh"
 #include "G4VVisManager.hh"
 
-G4ThreadLocal G4Allocator<MLCTrajectory>* MLCTrajectoryAllocator = nullptr;
+G4ThreadLocal G4Allocator<MLCTrajectory> *MLCTrajectoryAllocator = nullptr;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 MLCTrajectory::MLCTrajectory()
-    : G4Trajectory()
-    , fDrawit(false)
-    , fForceNoDraw(false)
-    , fForceDraw(false)
+    : G4Trajectory(), fDrawit(false), fForceNoDraw(false), fForceDraw(false)
 {
     fParticleDefinition = nullptr;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-MLCTrajectory::MLCTrajectory(const G4Track* aTrack)
-    : G4Trajectory(aTrack)
-    , fDrawit(false)
+MLCTrajectory::MLCTrajectory(const G4Track *aTrack)
+    : G4Trajectory(aTrack), fDrawit(false)
 {
     fParticleDefinition = aTrack->GetDefinition();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-MLCTrajectory::MLCTrajectory(MLCTrajectory& right)
-    : G4Trajectory(right)
-    , fDrawit(right.fDrawit)
+MLCTrajectory::MLCTrajectory(MLCTrajectory &right)
+    : G4Trajectory(right), fDrawit(right.fDrawit)
 {
     fParticleDefinition = right.fParticleDefinition;
 }
@@ -57,7 +52,7 @@ void MLCTrajectory::DrawTrajectory() const
     if (!fForceDraw && (!fDrawit || fForceNoDraw))
         return;
 
-    G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
+    G4VVisManager *pVVisManager = G4VVisManager::GetConcreteInstance();
     if (!pVVisManager)
         return;
 
@@ -71,8 +66,8 @@ void MLCTrajectory::DrawTrajectory() const
 
     for (G4int i = 0; i < GetPointEntries(); ++i)
     {
-        G4VTrajectoryPoint* aTrajectoryPoint = GetPoint(i);
-        const std::vector<G4ThreeVector>* auxiliaries =
+        G4VTrajectoryPoint *aTrajectoryPoint = GetPoint(i);
+        const std::vector<G4ThreeVector> *auxiliaries =
             aTrajectoryPoint->GetAuxiliaryPoints();
         if (auxiliaries)
         {
@@ -106,10 +101,10 @@ void MLCTrajectory::DrawTrajectory() const
 
         if (fParticleDefinition == G4OpticalPhoton::OpticalPhotonDefinition())
         {
-             // Scintillation and Cerenkov photons are green
-                colour = G4Colour(0., 1., 0.);
+            // Scintillation and Cerenkov photons are green
+            colour = G4Colour(0., 1., 0.);
         }
-        else  // All other particles are blue
+        else // All other particles are blue
             colour = G4Colour(0., 0., 1.);
 
         G4VisAttributes trajectoryLineAttribs(colour);
@@ -121,14 +116,14 @@ void MLCTrajectory::DrawTrajectory() const
         auxiliaryPoints.SetMarkerType(G4Polymarker::squares);
         auxiliaryPoints.SetScreenSize(markerSize);
         auxiliaryPoints.SetFillStyle(G4VMarker::filled);
-        G4VisAttributes auxiliaryPointsAttribs(G4Colour(0., 1., 1.));  // Magenta
+        G4VisAttributes auxiliaryPointsAttribs(G4Colour(0., 1., 1.)); // Magenta
         auxiliaryPoints.SetVisAttributes(&auxiliaryPointsAttribs);
         pVVisManager->Draw(auxiliaryPoints);
 
         stepPoints.SetMarkerType(G4Polymarker::circles);
         stepPoints.SetScreenSize(markerSize);
         stepPoints.SetFillStyle(G4VMarker::filled);
-        G4VisAttributes stepPointsAttribs(G4Colour(1., 1., 0.));  // Yellow
+        G4VisAttributes stepPointsAttribs(G4Colour(1., 1., 0.)); // Yellow
         stepPoints.SetVisAttributes(&stepPointsAttribs);
         pVVisManager->Draw(stepPoints);
     }

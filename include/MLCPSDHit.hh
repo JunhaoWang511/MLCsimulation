@@ -11,14 +11,14 @@ class MLCPSDHit : public G4VHit
 {
 public:
     MLCPSDHit();
-    MLCPSDHit(const MLCPSDHit& right);
+    MLCPSDHit(const MLCPSDHit &right);
     ~MLCPSDHit();
 
-    const MLCPSDHit& operator=(const MLCPSDHit& right);
-    G4bool operator==(const MLCPSDHit& right) const;
+    const MLCPSDHit &operator=(const MLCPSDHit &right);
+    G4bool operator==(const MLCPSDHit &right) const;
 
-    inline void* operator new(size_t);
-    inline void operator delete(void* aHit);
+    inline void *operator new(size_t);
+    inline void operator delete(void *aHit);
 
     virtual void Draw();
     virtual void Print();
@@ -29,11 +29,11 @@ public:
     inline void SetPSDNumber(G4int n) { fPSDNumber = n; }
     inline G4int GetPSDNumber() { return fPSDNumber; }
 
-    inline void SetPSDPhysVol(G4VPhysicalVolume* physVol)
+    inline void SetPSDPhysVol(G4VPhysicalVolume *physVol)
     {
         this->fPhysVol = physVol;
     }
-    inline G4VPhysicalVolume* GetPSDPhysVol() { return fPhysVol; }
+    inline G4VPhysicalVolume *GetPSDPhysVol() { return fPhysVol; }
 
     inline void SetPSDPos(G4double x, G4double y, G4double z)
     {
@@ -48,26 +48,25 @@ public:
 private:
     G4int fPSDNumber;
     G4ThreeVector fPos;
-    G4ThreeVector fPosition;//hit position by proton
-    G4VPhysicalVolume* fPhysVol;
+    G4ThreeVector fPosition; // hit position by proton
+    G4VPhysicalVolume *fPhysVol;
     G4bool fDrawit;
 };
 
 typedef G4THitsCollection<MLCPSDHit> MLCPSDHitsCollection;
 
-extern G4ThreadLocal G4Allocator<MLCPSDHit>* MLCPSDHitAllocator;
+extern G4ThreadLocal G4Allocator<MLCPSDHit> *MLCPSDHitAllocator;
 
-inline void* MLCPSDHit::operator new(size_t)
+inline void *MLCPSDHit::operator new(size_t)
 {
     if (!MLCPSDHitAllocator)
         MLCPSDHitAllocator = new G4Allocator<MLCPSDHit>;
-    return (void*)MLCPSDHitAllocator->MallocSingle();
+    return (void *)MLCPSDHitAllocator->MallocSingle();
 }
 
-inline void MLCPSDHit::operator delete(void* aHit)
+inline void MLCPSDHit::operator delete(void *aHit)
 {
-    MLCPSDHitAllocator->FreeSingle((MLCPSDHit*)aHit);
+    MLCPSDHitAllocator->FreeSingle((MLCPSDHit *)aHit);
 }
 
 #endif
-

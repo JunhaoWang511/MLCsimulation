@@ -23,9 +23,9 @@ MLCRun::~MLCRun() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void MLCRun::Merge(const G4Run* run)
+void MLCRun::Merge(const G4Run *run)
 {
-    const MLCRun* localRun = static_cast<const MLCRun*>(run);
+    const MLCRun *localRun = static_cast<const MLCRun *>(run);
 
     fHitCount += localRun->fHitCount;
     fHitCount2 += localRun->fHitCount2;
@@ -65,7 +65,7 @@ void MLCRun::EndOfRun()
     else
         rms_hits = 0.;
     G4cout << "Number of hits per event:\t " << hits << " +- " << rms_hits
-        << G4endl;
+           << G4endl;
 
     G4double hitsAbove = G4double(fPMTsAboveThreshold) / n_evt;
     G4double hitsAbove2 = G4double(fPMTsAboveThreshold2) / n_evt;
@@ -76,7 +76,7 @@ void MLCRun::EndOfRun()
         rms_hitsAbove = 0.;
 
     G4cout << "Number of hits per event above threshold:\t " << hitsAbove
-        << " +- " << rms_hitsAbove << G4endl;
+           << " +- " << rms_hitsAbove << G4endl;
 
     G4double scint = G4double(fPhotonCount_Scint) / n_evt;
     G4double scint2 = G4double(fPhotonCount_Scint2) / n_evt;
@@ -87,7 +87,7 @@ void MLCRun::EndOfRun()
         rms_scint = 0.;
 
     G4cout << "Number of scintillation photons per event :\t " << scint << " +- "
-        << rms_scint << G4endl;
+           << rms_scint << G4endl;
 
     G4double ceren = G4double(fPhotonCount_Ceren) / n_evt;
     G4double ceren2 = G4double(fPhotonCount_Ceren2) / n_evt;
@@ -98,7 +98,7 @@ void MLCRun::EndOfRun()
         rms_ceren = 0.;
 
     G4cout << "Number of Cerenkov photons per event:\t " << ceren << " +- "
-        << rms_ceren << G4endl;
+           << rms_ceren << G4endl;
 
     G4double absorb = G4double(fAbsorptionCount) / n_evt;
     G4double absorb2 = G4double(fAbsorptionCount2) / n_evt;
@@ -109,7 +109,7 @@ void MLCRun::EndOfRun()
         rms_absorb = 0.;
 
     G4cout << "Number of absorbed photons per event :\t " << absorb << " +- "
-        << rms_absorb << G4endl;
+           << rms_absorb << G4endl;
 
     G4double bdry = G4double(fBoundaryAbsorptionCount) / n_evt;
     G4double bdry2 = G4double(fBoundaryAbsorptionCount2) / n_evt;
@@ -120,7 +120,7 @@ void MLCRun::EndOfRun()
         rms_bdry = 0.;
 
     G4cout << "Number of photons absorbed at boundary per event:\t " << bdry
-        << " +- " << rms_bdry << G4endl;
+           << " +- " << rms_bdry << G4endl;
 
     G4double en = fTotE / n_evt;
     G4double en2 = fTotE2 / n_evt;
@@ -131,7 +131,7 @@ void MLCRun::EndOfRun()
         rms_en = 0.;
 
     G4cout << "Total energy deposition in scintillator per event:\t " << en / keV
-        << " +- " << rms_en / keV << " keV." << G4endl;
+           << " +- " << rms_en / keV << " keV." << G4endl;
 
     G4cout << G4endl;
     G4cout.precision(prec);

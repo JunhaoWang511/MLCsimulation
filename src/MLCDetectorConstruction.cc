@@ -30,6 +30,9 @@
 #include "G4VisAttributes.hh"
 #include "G4UserLimits.hh"
 #include "G4NistManager.hh"
+#include "G4GDMLParser.hh"
+#include "G4Color.hh"
+#include "G4LogicalVolumeStore.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -52,21 +55,34 @@ MLCDetectorConstruction::MLCDetectorConstruction()
 
     //    fSaveThreshold = 0;
     SetDefaults();
-
     DefineMaterials();
+    fParser = nullptr;
     fDetectorMessenger = new MLCDetectorMessenger(this);
+}
+
+MLCDetectorConstruction::MLCDetectorConstruction(G4String GDMLfilename)
+{
+    fParser = new G4GDMLParser();
+    // DefineMaterials();
+    fParser->Read(GDMLfilename);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 MLCDetectorConstruction::~MLCDetectorConstruction()
 {
-    /*if (fMainVolume)
+    if (fLYSO_mt)
     {
-        delete fMainVolume;
-    }*/
-    delete fLYSO_mt;
-    delete fDetectorMessenger;
+        delete fLYSO_mt;
+    }
+    if (fDetectorMessenger)
+    {
+        delete fDetectorMessenger;
+    }
+    if (fParser)
+    {
+        delete fParser;
+    }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -94,6 +110,12 @@ void MLCDetectorConstruction::DefineMaterials()
     fLYSO->AddElement(fY, 2);
     fLYSO->AddElement(fSi, 10);
     fLYSO->AddElement(fO, 50);
+
+    // PMMA
+    fPMMA = new G4Material("PMMA", density = 1190. * kg / m3, 3);
+    fPMMA->AddElement(fH, 8);
+    fPMMA->AddElement(fC, 5);
+    fPMMA->AddElement(fO, 2);
 
     // Glass: window material is epoxy resin (C11H12O3)n
     fGlass = new G4Material("Glass", density = 1.2 * g / cm3, 3);
@@ -210,276 +232,339 @@ void MLCDetectorConstruction::DefineMaterials()
 
 G4VPhysicalVolume *MLCDetectorConstruction::Construct()
 {
-    // The experimental hall walls are all 0.2m away from housing walls
-    G4double expHall_x = 1 * m;
-    G4double expHall_y = 1 * m;
-    G4double expHall_z = 1 * m;
-
-    // Create experimental hall
-    fExperimentalHall_box =
-        new G4Box("expHall_box", expHall_x, expHall_y, expHall_z);
-    fExperimentalHall_log =
-        new G4LogicalVolume(fExperimentalHall_box, fAir, "expHall_log", 0, 0, 0);
-    fExperimentalHall_phys = new G4PVPlacement(
-        0, G4ThreeVector(), fExperimentalHall_log, "expHall", 0, false, 0);
-
-    fExperimentalHall_log->SetVisAttributes(G4VisAttributes::GetInvisible()); // hide world geometry
-
-    // place a 1mm lead foil
-    /*fFoil_box = new G4Box("leadfoil_box", 1.*cm , 1.*mm/2 ,  1.*cm);
-    fFoil_log = new G4LogicalVolume(fFoil_box, fPB , "leadfoil_log", 0, 0, 0);
-    fFoil_phy = new G4PVPlacement(0, G4ThreeVector(0 , -99.*cm , 0), fFoil_log, "leadfoil", fExperimentalHall_log, false, 0);
-
-    G4VisAttributes* foil_va = new G4VisAttributes(G4Colour(0.8, 0.8, 0.8));
-    foil_va->SetForceSolid(true);
-    fFoil_log->SetVisAttributes(foil_va);*/
-
-    // Create 4 PSDs(position sensitive detector)
-    G4double PSD_x = 2.5 * cm;
-    G4double PSD_y = 0.5 * mm;
-    G4double PSD_z = 2.5 * cm;
-
-    fPSD_box = new G4Box("PSD_box", PSD_x / 2, PSD_y / 2, PSD_z / 2);
-    fPSD_log = new G4LogicalVolume(fPSD_box, fSI, "PSD_log", 0, 0, 0);
-
-    fPSD_phy = new G4PVPlacement(0, G4ThreeVector(0, -22.5 * cm, 0), fPSD_log, "PSdetector", fExperimentalHall_log, false, 0); // 0th PSD
-    fPSDPositions.push_back(G4ThreeVector(0, -22.5 * cm * cm, 0));
-
-    fPSD_phy = new G4PVPlacement(0, G4ThreeVector(0, -20. * cm, 0), fPSD_log, "PSdetector", fExperimentalHall_log, false, 1); // 1th PSD
-    fPSDPositions.push_back(G4ThreeVector(0, -20. * cm, 0));
-
-    fPSD_phy = new G4PVPlacement(0, G4ThreeVector(0, -5. * cm, 0), fPSD_log, "PSdetector", fExperimentalHall_log, false, 2); // 2th PSD
-    fPSDPositions.push_back(G4ThreeVector(0, -5. * cm, 0));
-
-    fPSD_phy = new G4PVPlacement(0, G4ThreeVector(0, -2.5 * cm, 0), fPSD_log, "PSdetector", fExperimentalHall_log, false, 3); // 3th PSD
-    fPSDPositions.push_back(G4ThreeVector(0, -2.5 * cm, 0));
-
-    // Place degrader in front of scintillator
-    if (fDegraderOn)
+    if (fParser)
     {
-        fDegrader_box = new G4Box("degrader_box", 1.25 * cm, fPolyThick / 2, 1.25 * cm);
-        fDegrader_log = new G4LogicalVolume(fDegrader_box, fPoly, "degrader_log", 0, 0, 0);
-        fDegrader_phy = new G4PVPlacement(0, G4ThreeVector(0, -12.5 * cm, 0), fDegrader_log, "degrader", fExperimentalHall_log, false, 0);
-
-        G4VisAttributes *degrader_va = new G4VisAttributes(G4Colour(0.8, 0.8, 0.8));
-        degrader_va->SetForceSolid(true);
-        fDegrader_log->SetVisAttributes(degrader_va);
-    }
-
-    // Place the main volume
-    /*if (fMainVolumeOn)
-    {
-        fMainVolume = new MLCMainVolume(0, G4ThreeVector(), fExperimentalHall_log, false, 0, this);
-    }*/
-
-    // Create Housng and Scintillator
-    G4double housing_x = fScint_x + 2. * fPmtGap;
-    G4double housing_y = fScint_y + 2. * fPmtGap;
-    G4double housing_z = fScint_z + 4. * fWinThick;
-    if (fLayerOn)
-        fScint_box =
-            new G4Box("scint_box", fScint_x / 2., fPmtLength / 2., fScint_z / 2.);
-    else
-        fScint_box =
-            new G4Box("scint_box", fScint_x / 2., fScint_y / 2., fScint_z / 2.);
-
-    fHousing_box =
-        new G4Box("housing_box", housing_x / 2., housing_y / 2., housing_z / 2.);
-
-    /*fEdge_box1 =
-        new G4Box("edge_box1", fPmtGap / 2., fPmtGap / 2., fScint_z / 2.);
-    fEdge_box2 =
-        new G4Box("edge_box2", fScint_x / 2., fPmtGap / 2., fPmtGap / 2.);
-    fEdge_box3 =
-        new G4Box("edge_box3", fPmtGap / 2., housing_y / 2., fPmtGap / 2.);*/
-
-    fScint_log = new G4LogicalVolume(fScint_box, G4Material::GetMaterial("LYSO"),
-                                     "scint_log", 0, 0, 0);
-    fHousing_log = new G4LogicalVolume(
-        fHousing_box, G4Material::GetMaterial("Al"), "housing_log", 0, 0, 0);
-
-    /*fEdge_log1 = new G4LogicalVolume(fEdge_box1, G4Material::GetMaterial("Air"),
-        "edge_log1", 0, 0, 0);
-    fEdge_log2 = new G4LogicalVolume(fEdge_box2, G4Material::GetMaterial("Air"),
-        "edge_log2", 0, 0, 0);
-    fEdge_log3 = new G4LogicalVolume(fEdge_box3, G4Material::GetMaterial("Air"),
-        "edge_log3", 0, 0, 0);*/
-
-    fHousing_phy = new G4PVPlacement(
-        0, G4ThreeVector(), fHousing_log, "housing", fExperimentalHall_log, false, 0);
-    /*fScint_phy = new G4PVPlacement(
-        0, G4ThreeVector(), fScint_log, "scintillator", fHousing_log, false, 0);*/
-
-    //****************** Build SiPMs
-
-    fPmt = new G4Box("pmt_box", fPmtLength / 2., fPmtLength / 2., fWinThick); // SiPM is composed of one layer of glass and Si ,
-    // both thickness is 0.25mm, length is 3mm
-
-    // the "photocathode" is a metal slab at the back of the glass that
-    // is only a very rough approximation of the real thing since it only
-    // absorbs or detects the photons based on the efficiency set below
-
-    fPhotocath = new G4Box("photocath_box", fPmtLength / 2., fPmtLength / 2., fWinThick / 2.);
-
-    fPmt_log =
-        new G4LogicalVolume(fPmt, G4Material::GetMaterial("Glass"), "pmt_log");
-    fPhotocath_log =
-        new G4LogicalVolume(fPhotocath, G4Material::GetMaterial("Si"), "photocath_log");
-
-    new G4PVPlacement(0, G4ThreeVector(0., 0., fWinThick / 2.), fPhotocath_log, "photocath", fPmt_log, false, 0);
-
-    //***********Arrange pmts and scintillators inside of housing, and substract edges**********
-
-    G4String str = "scintillator";
-    G4double xy0 = -3. / 2 * (fPmtLength + fPmtGap); // the first scintillator(SiPM)'s x/y position
-    G4double deltxy = fPmtLength + fPmtGap;          // x/y position increment
-    G4double z = fScint_z / 2. + fWinThick;
-    // G4double length = (fScint_x + fPmtGap) / 2;
-    // G4double length_layer = (1./fLayer*fScint_y+fPmtGap) / 2;
-    G4int k = 0;
-    G4int j = 0;
-
-    for (G4int i = 0; i < 4; i++)
-    {
-        // G4String scint_name=str+std::to_string(i+1);
-        if (fLayerOn)
-            new G4PVPlacement(0, G4ThreeVector(0., xy0 + i * deltxy, 0.), fScint_log, str, fHousing_log, false, i); // i-th scintillator
-        for (j = 0; j < 4; j++)
+        // find chips and set their color as red
+        const G4GDMLAuxMapType *auxmap = fParser->GetAuxMap();
+        for (G4GDMLAuxMapType::const_iterator iter = auxmap->begin();
+             iter != auxmap->end(); iter++)
         {
-            new G4PVPlacement(nullptr, G4ThreeVector(xy0 + j * deltxy, xy0 + i * deltxy, z), fPmt_log, "pmt", fHousing_log, false, k); //(4*i+j)-th pmt
-            fPmtPositions.push_back(G4ThreeVector(xy0 + j * deltxy, xy0 + i * deltxy, z));
-            k++;
+            G4cout << "Volume " << ((*iter).first)->GetName()
+                   << " has the following list of auxiliary information: "
+                   << G4endl << G4endl;
+            for (G4GDMLAuxListType::const_iterator vit = (*iter).second.begin();
+                 vit != (*iter).second.end(); vit++)
+            {
+                if ((*vit).type == "Color")
+                {
+                    G4cout << "setting color " << (*vit).value
+                           << " to volume " << ((*iter).first)->GetName()
+                           << G4endl << G4endl;
+                    G4LogicalVolume *chipLG = G4LogicalVolumeStore::GetInstance()->GetVolume(((*iter).first)->GetName());
+                    G4VisAttributes *chip_va = new G4VisAttributes();
+                    if ((*vit).value == "Red")
+                    {
+                        chip_va->SetColor(G4Color::Red());
+                    }
+                    else if ((*vit).value == "Blue")
+                    {
+                        chip_va->SetColor(G4Color::Blue());
+                    }
+                    else if ((*vit).value == "Green")
+                    {
+                        chip_va->SetColor(G4Color::Green());
+                    }
+                    else
+                    {
+                        G4cout << "could not find the color, set Green as default!" << G4endl;
+                        chip_va->SetColor(G4Color::Green());
+                    }
+                    chipLG->SetVisAttributes(chip_va);
+                }
+            }
         }
+
+        // if (fDosimeterOn) // create an air dosimeter on the surface of detector
+        // {
+        //     G4double Ythickness = 1 * mm;
+        //     G4double Xlength = 250 * mm;
+        //     G4double Zlength = 250 * mm;
+        //     fDosimeter_box = new G4Box("dosimeter_box", Xlength / 2., Ythickness / 2., Zlength / 2.);
+        //     fDosimeter_log = new G4LogicalVolume(fDosimeter_box, fAir, "dosimeter_log", 0, 0, 0);
+        //     fDosimeter_phy = new G4PVPlacement(0, G4ThreeVector(Xlength / 2., 6. * mm, -Zlength / 2.), fDosimeter_log, "dosimeter", fParser->GetWorldVolume()->GetLogicalVolume(), false, 0);
+        //     G4VisAttributes *dose_va = new G4VisAttributes(G4Colour(1, 1, 1));
+        //     fDosimeter_log->SetVisAttributes(dose_va);
+        // }
+
+        return fParser->GetWorldVolume();
     }
-    if(!fLayerOn)
-    new G4PVPlacement(0, G4ThreeVector(0., 0, 0.), fScint_log, str, fHousing_log, false, 0);
-
-    // Set optical surface property
-    std::vector<G4double> ephoton1 = {7.0 * eV, 7.14 * eV};
-    std::vector<G4double> ephoton2 = {2.2545 * eV, 2.2963 * eV, 2.3396 * eV, 2.3846 * eV,
-                                      2.4314 * eV, 2.48 * eV, 2.5306 * eV, 2.5833 * eV, 2.6383 * eV, 2.6957 * eV, 2.7556 * eV,
-                                      2.8182 * eV, 2.8837 * eV, 2.9524 * eV, 3.0244 * eV, 3.1 * eV, 3.1795 * eV, 3.2632 * eV,
-                                      3.3514 * eV, 3.4444 * eV, 3.5429 * eV};
-
-    //**Scintillator housing properties
-    std::vector<G4double> reflectivity = {fRefl, fRefl}; // total reflection
-    std::vector<G4double> efficiency = {0.0, 0.0};       // photon-absorption effeciency
-    G4MaterialPropertiesTable *scintHsngPT = new G4MaterialPropertiesTable();
-    scintHsngPT->AddProperty("REFLECTIVITY", ephoton1, reflectivity);
-    scintHsngPT->AddProperty("EFFICIENCY", ephoton1, efficiency);
-    G4OpticalSurface *OpScintHousingSurface =
-        new G4OpticalSurface("HousingSurface", unified, polished, dielectric_metal);
-    OpScintHousingSurface->SetMaterialPropertiesTable(scintHsngPT);
-
-    //**Photocathode surface properties
-    std::vector<G4double> photocath_EFF = {0.1817, 0.1904, 0.1974, 0.207, 0.2139, 0.2235,
-                                           0.2304, 0.24, 0.247, 0.2539, 0.2583, 0.2617, 0.2643, 0.2661, 0.2670, 0.2661, 0.2643,
-                                           0.2617, 0.2574, 0.2522, 0.2470}; // photon detection effeciency
-    std::vector<G4double> Reflec = {0.0, 0.0};                              // when photons hit photocathode, they are 100% absorbed, i.e., no reflection.
-
-    G4MaterialPropertiesTable *photocath_mt = new G4MaterialPropertiesTable();
-    photocath_mt->AddProperty("REFLECTIVITY", ephoton1, Reflec);
-    photocath_mt->AddProperty("EFFICIENCY", ephoton2, photocath_EFF);
-    G4OpticalSurface *photocath_opsurf = new G4OpticalSurface(
-        "photocath_opsurf", unified, polished, dielectric_metal);
-    photocath_opsurf->SetMaterialPropertiesTable(photocath_mt);
-
-    /*for(G4int i=0;i<fLayer;i++)
+    else
     {
-        new G4LogicalBorderSurface("scint_surf",fScint_phy[i],fHousing_phy,OpScintHousingSurface);
-    }*/
-    new G4LogicalSkinSurface("scint_surf", fHousing_log, OpScintHousingSurface);
-    new G4LogicalSkinSurface("photocath_surf", fPhotocath_log, photocath_opsurf);
 
-    // Set step length limit for Scintillator
-    G4double maxStep = 0.1 * mm;
-    G4UserLimits *fStepLimit = nullptr;
-    fStepLimit = new G4UserLimits(maxStep);
-    fScint_log->SetUserLimits(fStepLimit);
-    // fDegrader_log->SetUserLimits(fStepLimit);
+        // The experimental hall walls are all 0.2m away from housing walls
+        G4double expHall_x = 1 * m;
+        G4double expHall_y = 1 * m;
+        G4double expHall_z = 1 * m;
 
-    // Set vis attribute
-    G4VisAttributes *housing_va = new G4VisAttributes(G4Colour(0.8, 0.8, 0.8));
-    fHousing_log->SetVisAttributes(housing_va);
+        // Create experimental hall
+        fExperimentalHall_box =
+            new G4Box("expHall_box", expHall_x, expHall_y, expHall_z);
+        fExperimentalHall_log =
+            new G4LogicalVolume(fExperimentalHall_box, fAir, "expHall_log", 0, 0, 0);
+        fExperimentalHall_phys = new G4PVPlacement(
+            0, G4ThreeVector(), fExperimentalHall_log, "expHall", 0, false, 0);
 
-    G4VisAttributes *pmt_va = new G4VisAttributes();
-    pmt_va->SetForceSolid(true);
-    fPmt_log->SetVisAttributes(pmt_va);
+        fExperimentalHall_log->SetVisAttributes(G4VisAttributes::GetInvisible()); // hide world geometry
 
-    /*G4VisAttributes* edge_va = new G4VisAttributes(G4Colour(0., 0., 1.));
-    fEdge_log1->SetVisAttributes(edge_va);
-    fEdge_log2->SetVisAttributes(edge_va);
-    fEdge_log3->SetVisAttributes(edge_va);*/
+        // Create 4 PSDs(position sensitive detector)
+        G4double PSD_x = 2.5 * cm;
+        G4double PSD_y = 0.5 * mm;
+        G4double PSD_z = 2.5 * cm;
 
-    return fExperimentalHall_phys;
+        fPSD_box = new G4Box("PSD_box", PSD_x / 2, PSD_y / 2, PSD_z / 2);
+        fPSD_log = new G4LogicalVolume(fPSD_box, fSI, "PSD_log", 0, 0, 0);
+
+        fPSD_phy = new G4PVPlacement(0, G4ThreeVector(0, -22.5 * cm, 0), fPSD_log, "PSdetector", fExperimentalHall_log, false, 0); // 0th PSD
+        fPSDPositions.push_back(G4ThreeVector(0, -22.5 * cm * cm, 0));
+
+        fPSD_phy = new G4PVPlacement(0, G4ThreeVector(0, -20. * cm, 0), fPSD_log, "PSdetector", fExperimentalHall_log, false, 1); // 1th PSD
+        fPSDPositions.push_back(G4ThreeVector(0, -20. * cm, 0));
+
+        fPSD_phy = new G4PVPlacement(0, G4ThreeVector(0, -5. * cm, 0), fPSD_log, "PSdetector", fExperimentalHall_log, false, 2); // 2th PSD
+        fPSDPositions.push_back(G4ThreeVector(0, -5. * cm, 0));
+
+        fPSD_phy = new G4PVPlacement(0, G4ThreeVector(0, -2.5 * cm, 0), fPSD_log, "PSdetector", fExperimentalHall_log, false, 3); // 3th PSD
+        fPSDPositions.push_back(G4ThreeVector(0, -2.5 * cm, 0));
+
+        // Place degrader in front of scintillator
+        if (fDegraderOn)
+        {
+            fDegrader_box = new G4Box("degrader_box", 1.25 * cm, fPolyThick / 2, 1.25 * cm);
+            fDegrader_log = new G4LogicalVolume(fDegrader_box, fPoly, "degrader_log", 0, 0, 0);
+            fDegrader_phy = new G4PVPlacement(0, G4ThreeVector(0, -12.5 * cm, 0), fDegrader_log, "degrader", fExperimentalHall_log, false, 0);
+
+            G4VisAttributes *degrader_va = new G4VisAttributes(G4Colour(0.8, 0.8, 0.8));
+            degrader_va->SetForceSolid(true);
+            fDegrader_log->SetVisAttributes(degrader_va);
+        }
+
+        // Create Housng and Scintillator
+        G4double housing_x = fScint_x + 2. * fPmtGap;
+        G4double housing_y = fScint_y + 2. * fPmtGap;
+        G4double housing_z = fScint_z + 4. * fWinThick;
+        if (fLayerOn)
+            fScint_box =
+                new G4Box("scint_box", fScint_x / 2., fPmtLength / 2., fScint_z / 2.);
+        else
+            fScint_box =
+                new G4Box("scint_box", fScint_x / 2., fScint_y / 2., fScint_z / 2.);
+
+        fHousing_box =
+            new G4Box("housing_box", housing_x / 2., housing_y / 2., housing_z / 2.);
+
+        fScint_log = new G4LogicalVolume(fScint_box, G4Material::GetMaterial("LYSO"),
+                                         "scint_log", 0, 0, 0);
+        fHousing_log = new G4LogicalVolume(
+            fHousing_box, G4Material::GetMaterial("Al"), "housing_log", 0, 0, 0);
+
+        fHousing_phy = new G4PVPlacement(
+            0, G4ThreeVector(), fHousing_log, "housing", fExperimentalHall_log, false, 0);
+        /*fScint_phy = new G4PVPlacement(
+            0, G4ThreeVector(), fScint_log, "scintillator", fHousing_log, false, 0);*/
+
+        //****************** Build SiPMs
+
+        fPmt = new G4Box("pmt_box", fPmtLength / 2., fPmtLength / 2., fWinThick); // SiPM is composed of one layer of glass and Si ,
+        // both thickness is 0.25mm, length is 3mm
+
+        // the "photocathode" is a metal slab at the back of the glass that
+        // is only a very rough approximation of the real thing since it only
+        // absorbs or detects the photons based on the efficiency set below
+
+        fPhotocath = new G4Box("photocath_box", fPmtLength / 2., fPmtLength / 2., fWinThick / 2.);
+
+        fPmt_log =
+            new G4LogicalVolume(fPmt, G4Material::GetMaterial("Glass"), "pmt_log");
+        fPhotocath_log =
+            new G4LogicalVolume(fPhotocath, G4Material::GetMaterial("Si"), "photocath_log");
+
+        new G4PVPlacement(0, G4ThreeVector(0., 0., fWinThick / 2.), fPhotocath_log, "photocath", fPmt_log, false, 0);
+
+        //***********Arrange pmts and scintillators inside of housing, and substract edges**********
+
+        G4String str = "scintillator";
+        G4double xy0 = -3. / 2 * (fPmtLength + fPmtGap); // the first scintillator(SiPM)'s x/y position
+        G4double deltxy = fPmtLength + fPmtGap;          // x/y position increment
+        G4double z = fScint_z / 2. + fWinThick;
+        // G4double length = (fScint_x + fPmtGap) / 2;
+        // G4double length_layer = (1./fLayer*fScint_y+fPmtGap) / 2;
+        G4int k = 0;
+        G4int j = 0;
+
+        for (G4int i = 0; i < 4; i++)
+        {
+            // G4String scint_name=str+std::to_string(i+1);
+            if (fLayerOn)
+                new G4PVPlacement(0, G4ThreeVector(0., xy0 + i * deltxy, 0.), fScint_log, str, fHousing_log, false, i); // i-th scintillator
+            for (j = 0; j < 4; j++)
+            {
+                new G4PVPlacement(nullptr, G4ThreeVector(xy0 + j * deltxy, xy0 + i * deltxy, z), fPmt_log, "pmt", fHousing_log, false, k); //(4*i+j)-th pmt
+                fPmtPositions.push_back(G4ThreeVector(xy0 + j * deltxy, xy0 + i * deltxy, z));
+                k++;
+            }
+        }
+        if (!fLayerOn)
+            new G4PVPlacement(0, G4ThreeVector(0., 0, 0.), fScint_log, str, fHousing_log, false, 0);
+
+        // Set optical surface property
+        std::vector<G4double> ephoton1 = {7.0 * eV, 7.14 * eV};
+        std::vector<G4double> ephoton2 = {2.2545 * eV, 2.2963 * eV, 2.3396 * eV, 2.3846 * eV,
+                                          2.4314 * eV, 2.48 * eV, 2.5306 * eV, 2.5833 * eV, 2.6383 * eV, 2.6957 * eV, 2.7556 * eV,
+                                          2.8182 * eV, 2.8837 * eV, 2.9524 * eV, 3.0244 * eV, 3.1 * eV, 3.1795 * eV, 3.2632 * eV,
+                                          3.3514 * eV, 3.4444 * eV, 3.5429 * eV};
+
+        //**Scintillator housing properties
+        std::vector<G4double> reflectivity = {fRefl, fRefl}; // total reflection
+        std::vector<G4double> efficiency = {0.0, 0.0};       // photon-absorption effeciency
+        G4MaterialPropertiesTable *scintHsngPT = new G4MaterialPropertiesTable();
+        scintHsngPT->AddProperty("REFLECTIVITY", ephoton1, reflectivity);
+        scintHsngPT->AddProperty("EFFICIENCY", ephoton1, efficiency);
+        G4OpticalSurface *OpScintHousingSurface =
+            new G4OpticalSurface("HousingSurface", unified, polished, dielectric_metal);
+        OpScintHousingSurface->SetMaterialPropertiesTable(scintHsngPT);
+
+        //**Photocathode surface properties
+        std::vector<G4double> photocath_EFF = {0.1817, 0.1904, 0.1974, 0.207, 0.2139, 0.2235,
+                                               0.2304, 0.24, 0.247, 0.2539, 0.2583, 0.2617, 0.2643, 0.2661, 0.2670, 0.2661, 0.2643,
+                                               0.2617, 0.2574, 0.2522, 0.2470}; // photon detection effeciency
+        std::vector<G4double> Reflec = {0.0, 0.0};                              // when photons hit photocathode, they are 100% absorbed, i.e., no reflection.
+
+        G4MaterialPropertiesTable *photocath_mt = new G4MaterialPropertiesTable();
+        photocath_mt->AddProperty("REFLECTIVITY", ephoton1, Reflec);
+        photocath_mt->AddProperty("EFFICIENCY", ephoton2, photocath_EFF);
+        G4OpticalSurface *photocath_opsurf = new G4OpticalSurface(
+            "photocath_opsurf", unified, polished, dielectric_metal);
+        photocath_opsurf->SetMaterialPropertiesTable(photocath_mt);
+
+        /*for(G4int i=0;i<fLayer;i++)
+        {
+            new G4LogicalBorderSurface("scint_surf",fScint_phy[i],fHousing_phy,OpScintHousingSurface);
+        }*/
+        new G4LogicalSkinSurface("scint_surf", fHousing_log, OpScintHousingSurface);
+        new G4LogicalSkinSurface("photocath_surf", fPhotocath_log, photocath_opsurf);
+
+        // Set step length limit for Scintillator
+        G4double maxStep = 0.1 * mm;
+        G4UserLimits *fStepLimit = nullptr;
+        fStepLimit = new G4UserLimits(maxStep);
+        fScint_log->SetUserLimits(fStepLimit);
+        // fDegrader_log->SetUserLimits(fStepLimit);
+
+        // Set vis attribute
+        G4VisAttributes *housing_va = new G4VisAttributes(G4Colour(0.8, 0.8, 0.8));
+        fHousing_log->SetVisAttributes(housing_va);
+
+        G4VisAttributes *pmt_va = new G4VisAttributes();
+        pmt_va->SetForceSolid(true);
+        fPmt_log->SetVisAttributes(pmt_va);
+
+        return fExperimentalHall_phys;
+    }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void MLCDetectorConstruction::ConstructSDandField()
 {
-    /*if (!fMainVolume)
-        return;*/
-
-    // PMT SD
-
-    MLCPMTSD *pmt = fPmt_SD.Get();
-    if (!pmt)
+    if (fParser)
     {
-        // Created here so it exists as pmts are being placed
-        G4cout << "Construction /MLCDet/pmtSD" << G4endl;
-        MLCPMTSD *pmt_SD = new MLCPMTSD("/MLCDet/pmtSD");
-        fPmt_SD.Put(pmt_SD);
+        G4SDManager *SDman = G4SDManager::GetSDMpointer();
+        G4String SDName = "ChipSD";
+        MLCScintSD *chip_SD = new MLCScintSD(SDName);
+        SDman->AddNewDetector(chip_SD);
+        // now we are looking for sensitive detectors setting them for the volumes
+        const G4GDMLAuxMapType *auxmap = fParser->GetAuxMap();
+        for (G4GDMLAuxMapType::const_iterator iter = auxmap->begin();
+             iter != auxmap->end(); iter++)
+        {
+            G4cout << "Volume " << ((*iter).first)->GetName()
+                   << " has the following list of auxiliary information: "
+                   << G4endl << G4endl;
+            for (G4GDMLAuxListType::const_iterator vit = (*iter).second.begin();
+                 vit != (*iter).second.end(); vit++)
+            {
+                if ((*vit).type == "SensDet")
+                {
+                    G4cout << "Attaching sensitive detector " << (*vit).value
+                           << " to volume " << ((*iter).first)->GetName()
+                           << G4endl << G4endl;
 
-        pmt_SD->InitPMTs();
-        pmt_SD->SetPmtPositions(GetPmtPositions());
+                    G4VSensitiveDetector *mydet =
+                        SDman->FindSensitiveDetector((*vit).value); //(*vit).value should be set as "ChipSD"
+                    if (mydet)
+                    {
+                        G4LogicalVolume *myvol = (*iter).first;
+                        myvol->SetSensitiveDetector(mydet);
+                    }
+                    else
+                    {
+                        G4cout << (*vit).value << " detector not found" << G4endl;
+                    }
+                }
+            }
+        }
     }
     else
     {
-        pmt->InitPMTs();
-        pmt->SetPmtPositions(GetPmtPositions());
+        // PMT SD
+        MLCPMTSD *pmt = fPmt_SD.Get();
+        if (!pmt)
+        {
+            // Created here so it exists as pmts are being placed
+            G4cout << "Construction /MLCDet/pmtSD" << G4endl;
+            MLCPMTSD *pmt_SD = new MLCPMTSD("/MLCDet/pmtSD");
+            fPmt_SD.Put(pmt_SD);
+
+            pmt_SD->InitPMTs();
+            pmt_SD->SetPmtPositions(GetPmtPositions());
+        }
+        else
+        {
+            pmt->InitPMTs();
+            pmt->SetPmtPositions(GetPmtPositions());
+        }
+        G4SDManager::GetSDMpointer()->AddNewDetector(fPmt_SD.Get());
+        // sensitive detector is not actually on the photocathode.
+        // processHits gets done manually by the stepping action.
+        // It is used to detect when photons hit and get absorbed & detected at the
+        // boundary to the photocathode (which doesn't get done by attaching it to a
+        // logical volume.
+        // It does however need to be attached to something or else it doesn't get
+        // reset at the begining of events
+
+        SetSensitiveDetector(fPhotocath_log, fPmt_SD.Get());
+
+        // PSDs
+        MLCPSD *psd = fPSD.Get();
+        if (!fPSD.Get())
+        {
+            // Created here so it exists as PSDs are being placed
+            G4cout << "Construction /MLCDet/PSD" << G4endl;
+            MLCPSD *pSD = new MLCPSD("/MLCDet/pSD");
+            fPSD.Put(pSD);
+
+            pSD->InitPSDs();
+            pSD->SetPSDPositions(GetPSDPositions());
+        }
+        else
+        {
+            psd->InitPSDs();
+            psd->SetPSDPositions(GetPSDPositions());
+        }
+        G4SDManager::GetSDMpointer()->AddNewDetector(fPSD.Get());
+        SetSensitiveDetector(fPSD_log, fPSD.Get());
+
+        // Scint SD
+
+        if (!fScint_SD.Get())
+        {
+            G4cout << "Construction /MLCDet/scintSD" << G4endl;
+            MLCScintSD *scint_SD = new MLCScintSD("/MLCDet/scintSD");
+            fScint_SD.Put(scint_SD);
+        }
+        G4SDManager::GetSDMpointer()->AddNewDetector(fScint_SD.Get());
+        SetSensitiveDetector(fScint_log, fScint_SD.Get());
     }
-    G4SDManager::GetSDMpointer()->AddNewDetector(fPmt_SD.Get());
-    // sensitive detector is not actually on the photocathode.
-    // processHits gets done manually by the stepping action.
-    // It is used to detect when photons hit and get absorbed & detected at the
-    // boundary to the photocathode (which doesn't get done by attaching it to a
-    // logical volume.
-    // It does however need to be attached to something or else it doesn't get
-    // reset at the begining of events
-
-    SetSensitiveDetector(fPhotocath_log, fPmt_SD.Get());
-
-    // PSDs
-    MLCPSD *psd = fPSD.Get();
-    if (!fPSD.Get())
-    {
-        // Created here so it exists as PSDs are being placed
-        G4cout << "Construction /MLCDet/PSD" << G4endl;
-        MLCPSD *pSD = new MLCPSD("/MLCDet/pSD");
-        fPSD.Put(pSD);
-
-        pSD->InitPSDs();
-        pSD->SetPSDPositions(GetPSDPositions());
-    }
-    else
-    {
-        psd->InitPSDs();
-        psd->SetPSDPositions(GetPSDPositions());
-    }
-    G4SDManager::GetSDMpointer()->AddNewDetector(fPSD.Get());
-    SetSensitiveDetector(fPSD_log, fPSD.Get());
-
-    // Scint SD
-
-    if (!fScint_SD.Get())
-    {
-        G4cout << "Construction /MLCDet/scintSD" << G4endl;
-        MLCScintSD *scint_SD = new MLCScintSD("/MLCDet/scintSD");
-        fScint_SD.Put(scint_SD);
-    }
-    G4SDManager::GetSDMpointer()->AddNewDetector(fScint_SD.Get());
-    SetSensitiveDetector(fScint_log, fScint_SD.Get());
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -522,31 +607,17 @@ void MLCDetectorConstruction::SetPolyThickness(G4double polyThick)
 void MLCDetectorConstruction::SetDefaults()
 {
     // Resets to default values
-
     fScint_x = 2.5 * cm;
     fScint_y = 2.5 * cm;
     fScint_z = 2.5 * cm;
-
     fPmtLength = 6 * mm;
     fPmtGap = 0.2 * mm;
     fWinThick = 0.15 * mm;
-
     fPolyThick = 3. * cm;
-
     fRefl = 0.95;
     fFileId = 0;
-
     fLayerOn = true;
     fDegraderOn = true;
-
-    /*fMainVolumeOn = true;
-    fMainVolume = nullptr;*/
-
-    //    G4UImanager::GetUIpointer()->ApplyCommand(
-    //        "/MLC/detector/scintYieldFactor 1.");
-
-    if (fLYSO_mt)
-        fLYSO_mt->AddConstProperty("SCINTILLATIONYIELD", 30000. / MeV);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -583,7 +654,6 @@ void MLCDetectorConstruction::SetMainScintYield(G4double y)
 void MLCDetectorConstruction::SetFileId(G4int i)
 {
     fFileId = i;
-    // G4RunManager::GetRunManager()->ReinitializeGeometry();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

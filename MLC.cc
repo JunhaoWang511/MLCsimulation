@@ -1,4 +1,4 @@
-//brief Main program of MLC simulation
+// brief Main program of MLC simulation
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -21,49 +21,81 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
+    G4cout << "you can give no more than 4 parameters:" << G4endl << "[0] is ./MLC, [1] is .gdml filename, [2] is .mac filename, [3] is file ID." << G4endl;
     // detect interactive mode (if no arguments) and define UI session
-    G4UIExecutive* ui = nullptr;
+    G4UIExecutive *ui = nullptr;
     G4bool SetId = false;
+    G4bool UseGDML = false;
+    G4String GDMLFileName;
     if (argc == 1)
     {
         ui = new G4UIExecutive(argc, argv);
     }
-    if (argc==3)
+    else if (argc == 2)
+    {
+        ui = new G4UIExecutive(argc, argv);
+        UseGDML = true;
+    }
+    else if (argc == 3)
+    {
+        UseGDML = true;
+    }
+    else if (argc == 4)
     {
         SetId = true;
+        UseGDML = true;
     }
-    
-    CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine()); 
+    else
+    {
+        G4cout << "error!: parameter number is too more." << G4endl;
+    }
+
+    CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine());
     G4long seed = time(NULL);
+    if (argc == 4)
+    {
+        seed *= std::stoi(argv[3]);
+    }
     CLHEP::HepRandom::setTheSeed(seed);
-    
+
     /*long* fEventSeeds = new long[2];
     fEventSeeds[0]=1923059987;
     fEventSeeds[1]=355212931;
     CLHEP::HepRandom::setTheSeeds(fEventSeeds,171);*/
-    
-    auto runManager = G4RunManagerFactory::CreateRunManager();
 
-    MLCDetectorConstruction* det = new MLCDetectorConstruction();
+    // creat run manager 
+    auto runManager = G4RunManagerFactory::CreateRunManager();
+    // creat detector by using GDML files or default geometry
+    MLCDetectorConstruction *det;
+    if (UseGDML)
+    {
+        GDMLFileName = argv[1];
+        det = new MLCDetectorConstruction(GDMLFileName);
+    }
+    else
+    {
+        det = new MLCDetectorConstruction();
+    }
+
     runManager->SetUserInitialization(det);
 
-    G4VModularPhysicsList* physicsList = new FTFP_BERT(0);
+    G4VModularPhysicsList *physicsList = new FTFP_BERT(0);
     physicsList->ReplacePhysics(new G4EmStandardPhysics_option4(0));
 
-    G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
+    G4OpticalPhysics *opticalPhysics = new G4OpticalPhysics();
     auto opticalParams = G4OpticalParameters::Instance();
 
     opticalParams->SetWLSTimeProfile("delta");
-    opticalParams->SetScintTrackSecondariesFirst(true);    
+    opticalParams->SetScintTrackSecondariesFirst(true);
 
     opticalParams->SetCerenkovMaxPhotonsPerStep(100);
     opticalParams->SetCerenkovMaxBetaChange(10.0);
     opticalParams->SetCerenkovTrackSecondariesFirst(true);
 
     physicsList->RegisterPhysics(opticalPhysics);
-    G4StepLimiterPhysics* stepLimitPhys = new G4StepLimiterPhysics();
+    G4StepLimiterPhysics *stepLimitPhys = new G4StepLimiterPhysics();
     physicsList->RegisterPhysics(stepLimitPhys);
     runManager->SetUserInitialization(physicsList);
 
@@ -71,16 +103,16 @@ int main(int argc, char** argv)
     runManager->SetNumberOfThreads(1);
 
     // initialize visualization
-    G4VisManager* visManager = new G4VisExecutive;
+    G4VisManager *visManager = new G4VisExecutive;
     visManager->Initialize();
 
     // get the pointer to the User Interface manager
-    G4UImanager* UImanager = G4UImanager::GetUIpointer();
+    G4UImanager *UImanager = G4UImanager::GetUIpointer();
 
     if (ui)
     {
         // interactive mode
-        //UImanager->ApplyCommand("/control/execute vis.mac");
+        // UImanager->ApplyCommand("/control/execute vis.mac");
         if (ui->IsGUI())
         {
             UImanager->ApplyCommand("/control/execute gui.mac");
@@ -90,18 +122,18 @@ int main(int argc, char** argv)
     }
     else if (SetId == true)
     {
-        //set id in filename
+        // set id in filename
         G4String command = "/control/execute ";
-        G4String fileId = argv[2];
-        UImanager->ApplyCommand("/MLC/detector/fileId "+fileId);
-        G4String fileName = argv[1];
+        G4String fileId = argv[3];
+        UImanager->ApplyCommand("/MLC/Histogram/fileId " + fileId);
+        G4String fileName = argv[2];
         UImanager->ApplyCommand(command + fileName);
     }
     else
     {
         // batch mode
         G4String command = "/control/execute ";
-        G4String fileName = argv[1];
+        G4String fileName = argv[2];
         UImanager->ApplyCommand(command + fileName);
     }
 

@@ -5,20 +5,20 @@
 #include "Randomize.hh"
 #include "G4RunManager.hh"
 
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 MLCRunAction::MLCRunAction()
-    : fRun(nullptr)
-    , fHistoManager(nullptr)
-{}
+    : fRun(nullptr), fHistoManager(nullptr)
+{
+    fHistoManager = new MLCHistoManager();
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 MLCRunAction::~MLCRunAction() { delete fHistoManager; }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-G4Run* MLCRunAction::GenerateRun()
+G4Run *MLCRunAction::GenerateRun()
 {
     fRun = new MLCRun();
     return fRun;
@@ -26,16 +26,16 @@ G4Run* MLCRunAction::GenerateRun()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void MLCRunAction::BeginOfRunAction(const G4Run* /*run*/)
+void MLCRunAction::BeginOfRunAction(const G4Run * /*run*/)
 {
-    //G4cout<<"current run ID is "<<run->GetRunID()<<G4endl;
-    //G4RunManager::GetRunManager()->SetRandomNumberStore(true);
-    G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+    // G4cout<<"current run ID is "<<run->GetRunID()<<G4endl;
+    // G4RunManager::GetRunManager()->SetRandomNumberStore(true);
+    G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
     // Book predefined histograms
+    fHistoManager->Book();
+    // G4cout<<"the file id is "<<fHistoManager->GetFileID()<<G4endl;
+    analysisManager->OpenFile();
 
-        fHistoManager = new MLCHistoManager();
-        analysisManager->OpenFile();
-    
     /*if (analysisManager->IsActive())
     {
         analysisManager->OpenFile();
@@ -44,20 +44,19 @@ void MLCRunAction::BeginOfRunAction(const G4Run* /*run*/)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void MLCRunAction::EndOfRunAction(const G4Run* /*run*/)
+void MLCRunAction::EndOfRunAction(const G4Run * /*run*/)
 {
-    if (isMaster)
-        fRun->EndOfRun();
-
     // save histograms
-    G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
     /*if (analysisManager->IsActive())
     {
         analysisManager->Write();
         analysisManager->CloseFile();
     }*/
- 
-        analysisManager->Write();
-        analysisManager->CloseFile();
-        analysisManager->Clear();
+    G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
+    analysisManager->Write();
+    analysisManager->CloseFile();
+    analysisManager->Clear();
+
+    if (isMaster)
+        fRun->EndOfRun();
 }

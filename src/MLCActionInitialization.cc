@@ -10,10 +10,10 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-MLCActionInitialization::MLCActionInitialization(const MLCDetectorConstruction* det)
-	: G4VUserActionInitialization()
-	, fDetector(det)
-{}
+MLCActionInitialization::MLCActionInitialization(const MLCDetectorConstruction *det)
+	: G4VUserActionInitialization(), fDetector(det)
+{
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -32,7 +32,7 @@ void MLCActionInitialization::Build() const
 {
 	SetUserAction(new MLCPrimaryGeneratorAction());
 
-	MLCEventAction* eventAction = new MLCEventAction(fDetector);
+	MLCEventAction *eventAction = new MLCEventAction(fDetector);
 	SetUserAction(eventAction);
 	SetUserAction(new MLCStackingAction(eventAction));
 

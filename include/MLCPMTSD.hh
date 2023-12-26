@@ -17,11 +17,11 @@ public:
     MLCPMTSD(G4String name);
     ~MLCPMTSD();
 
-    void Initialize(G4HCofThisEvent*) override;
-    G4bool ProcessHits(G4Step* aStep, G4TouchableHistory*) override;
+    void Initialize(G4HCofThisEvent *) override;
+    G4bool ProcessHits(G4Step *aStep, G4TouchableHistory *) override;
 
     // A version of processHits active on boundary
-    G4bool ProcessHits_boundary(const G4Step*, G4TouchableHistory*);
+    G4bool ProcessHits_boundary(const G4Step *, G4TouchableHistory *);
 
     // Initialize the arrays to store pmt possitions
     inline void InitPMTs()
@@ -38,17 +38,16 @@ public:
     }
 
     // Store a pmt position
-    void SetPmtPositions(const std::vector<G4ThreeVector>& positions);
+    void SetPmtPositions(const std::vector<G4ThreeVector> &positions);
 
 private:
-    MLCPMTHitsCollection* fPMTHitCollection;
+    MLCPMTHitsCollection *fPMTHitCollection;
 
-    G4DataVector* fPMTPositionsX;
-    G4DataVector* fPMTPositionsY;
-    G4DataVector* fPMTPositionsZ;
+    G4DataVector *fPMTPositionsX;
+    G4DataVector *fPMTPositionsY;
+    G4DataVector *fPMTPositionsZ;
 
     G4int fHitCID;
 };
 
 #endif
-

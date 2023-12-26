@@ -18,12 +18,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 MLCPMTSD::MLCPMTSD(G4String name)
-    : G4VSensitiveDetector(name)
-    , fPMTHitCollection(nullptr)
-    , fPMTPositionsX(nullptr)
-    , fPMTPositionsY(nullptr)
-    , fPMTPositionsZ(nullptr)
-    , fHitCID(-1)
+    : G4VSensitiveDetector(name), fPMTHitCollection(nullptr), fPMTPositionsX(nullptr), fPMTPositionsY(nullptr), fPMTPositionsZ(nullptr), fHitCID(-1)
 {
     collectionName.insert("pmtHitCollection");
 }
@@ -39,7 +34,7 @@ MLCPMTSD::~MLCPMTSD()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void MLCPMTSD::SetPmtPositions(const std::vector<G4ThreeVector>& positions)
+void MLCPMTSD::SetPmtPositions(const std::vector<G4ThreeVector> &positions)
 {
     for (size_t i = 0; i < positions.size(); ++i)
     {
@@ -54,7 +49,7 @@ void MLCPMTSD::SetPmtPositions(const std::vector<G4ThreeVector>& positions)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void MLCPMTSD::Initialize(G4HCofThisEvent* hitsCE)
+void MLCPMTSD::Initialize(G4HCofThisEvent *hitsCE)
 {
     fPMTHitCollection =
         new MLCPMTHitsCollection(SensitiveDetectorName, collectionName[0]);
@@ -68,7 +63,7 @@ void MLCPMTSD::Initialize(G4HCofThisEvent* hitsCE)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4bool MLCPMTSD::ProcessHits(G4Step*, G4TouchableHistory*) { return false; }
+G4bool MLCPMTSD::ProcessHits(G4Step *, G4TouchableHistory *) { return false; }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -76,7 +71,7 @@ G4bool MLCPMTSD::ProcessHits(G4Step*, G4TouchableHistory*) { return false; }
 // PostStepPoint because the hit is generated manually when the photon is
 // absorbed by the photocathode
 
-G4bool MLCPMTSD::ProcessHits_boundary(const G4Step* aStep, G4TouchableHistory*)
+G4bool MLCPMTSD::ProcessHits_boundary(const G4Step *aStep, G4TouchableHistory *)
 {
     // need to know if this is an optical photon
     if (aStep->GetTrack()->GetDefinition() !=
@@ -88,12 +83,12 @@ G4bool MLCPMTSD::ProcessHits_boundary(const G4Step* aStep, G4TouchableHistory*)
     G4int pmtNumber =
         aStep->GetPostStepPoint()->GetTouchable()->GetReplicaNumber(1);
 
-    G4VPhysicalVolume* physVol =
+    G4VPhysicalVolume *physVol =
         aStep->GetPostStepPoint()->GetTouchable()->GetVolume(1);
 
     // Find the correct hit collection
     size_t n = fPMTHitCollection->entries();
-    MLCPMTHit* hit = nullptr;
+    MLCPMTHit *hit = nullptr;
     for (size_t i = 0; i < n; ++i)
     {
         if ((*fPMTHitCollection)[i]->GetPMTNumber() == pmtNumber)
@@ -104,16 +99,16 @@ G4bool MLCPMTSD::ProcessHits_boundary(const G4Step* aStep, G4TouchableHistory*)
     }
 
     if (hit == nullptr)
-    {                         // this pmt wasn't previously hit in this event
-        hit = new MLCPMTHit();  // so create new hit
+    {                          // this pmt wasn't previously hit in this event
+        hit = new MLCPMTHit(); // so create new hit
         hit->SetPMTNumber(pmtNumber);
         hit->SetPMTPhysVol(physVol);
         fPMTHitCollection->insert(hit);
         hit->SetPMTPos((*fPMTPositionsX)[pmtNumber], (*fPMTPositionsY)[pmtNumber],
-            (*fPMTPositionsZ)[pmtNumber]);
+                       (*fPMTPositionsZ)[pmtNumber]);
     }
 
-    hit->IncPhotonCount();  // increment hit for the selected pmt
+    hit->IncPhotonCount(); // increment hit for the selected pmt
 
     return true;
 }

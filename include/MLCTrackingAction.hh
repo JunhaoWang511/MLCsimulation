@@ -8,13 +8,12 @@ class MLCTrackingAction : public G4UserTrackingAction
 {
 public:
 	MLCTrackingAction();
-	~MLCTrackingAction() {};
+	~MLCTrackingAction(){};
 
-	void PreUserTrackingAction(const G4Track*) override;
-	void PostUserTrackingAction(const G4Track*) override;
+	void PreUserTrackingAction(const G4Track *) override;
+	void PostUserTrackingAction(const G4Track *) override;
 
 private:
 };
 
 #endif
-

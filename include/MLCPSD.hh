@@ -17,8 +17,8 @@ public:
     MLCPSD(G4String name);
     ~MLCPSD();
 
-    void Initialize(G4HCofThisEvent*) override;
-    G4bool ProcessHits(G4Step* aStep, G4TouchableHistory*) override;
+    void Initialize(G4HCofThisEvent *) override;
+    G4bool ProcessHits(G4Step *aStep, G4TouchableHistory *) override;
 
     // Initialize the arrays to store PSD possitions
     inline void InitPSDs()
@@ -35,17 +35,16 @@ public:
     }
 
     // Store a PSD position
-    void SetPSDPositions(const std::vector<G4ThreeVector>& positions);
+    void SetPSDPositions(const std::vector<G4ThreeVector> &positions);
 
 private:
-    MLCPSDHitsCollection* fPSDHitCollection;
+    MLCPSDHitsCollection *fPSDHitCollection;
 
-    G4DataVector* fPSDPositionsX;
-    G4DataVector* fPSDPositionsY;
-    G4DataVector* fPSDPositionsZ;
+    G4DataVector *fPSDPositionsX;
+    G4DataVector *fPSDPositionsY;
+    G4DataVector *fPSDPositionsZ;
 
     G4int fHitCID;
 };
 
 #endif
-

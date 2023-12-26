@@ -8,9 +8,10 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-MLCStackingAction::MLCStackingAction(MLCEventAction* ea)
+MLCStackingAction::MLCStackingAction(MLCEventAction *ea)
     : fEventAction(ea)
-{}
+{
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -18,7 +19,7 @@ MLCStackingAction::~MLCStackingAction() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4ClassificationOfNewTrack MLCStackingAction::ClassifyNewTrack(const G4Track* aTrack)
+G4ClassificationOfNewTrack MLCStackingAction::ClassifyNewTrack(const G4Track *aTrack)
 {
     // Count what process generated the optical photons
     if (aTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())

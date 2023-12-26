@@ -1,7 +1,7 @@
 #ifndef MLCEventAction_h
 #define MLCEventAction_h 1
 
-//#include "MLCEventMessenger.hh"
+// #include "MLCEventMessenger.hh"
 
 #include "globals.hh"
 #include "G4ThreeVector.hh"
@@ -13,12 +13,12 @@ class MLCDetectorConstruction;
 class MLCEventAction : public G4UserEventAction
 {
 public:
-    MLCEventAction(const MLCDetectorConstruction*);
+    MLCEventAction(const MLCDetectorConstruction *);
     ~MLCEventAction();
 
 public:
-    void BeginOfEventAction(const G4Event*) override;
-    void EndOfEventAction(const G4Event*) override;
+    void BeginOfEventAction(const G4Event *) override;
+    void EndOfEventAction(const G4Event *) override;
 
     void SetEventVerbose(G4int v) { fVerbose = v; }
 
@@ -34,14 +34,14 @@ public:
     void IncBoundaryAbsorption() { ++fBoundaryAbsorptionCount; }
     void IncHitCount(G4int i = 1) { fHitCount += i; }
 
-    void SetEWeightPos(const G4ThreeVector& p) { fEWeightPos = p; }
-    void SetReconPos(const G4ThreeVector& p) { fReconPos = p; }
-    void SetConvPos(const G4ThreeVector& p)
+    void SetEWeightPos(const G4ThreeVector &p) { fEWeightPos = p; }
+    void SetReconPos(const G4ThreeVector &p) { fReconPos = p; }
+    void SetConvPos(const G4ThreeVector &p)
     {
         fConvPos = p;
         fConvPosSet = true;
     }
-    void SetPosMax(const G4ThreeVector& p, G4double edep)
+    void SetPosMax(const G4ThreeVector &p, G4double edep)
     {
         fPosMax = p;
         fEdepMax = edep;
@@ -61,7 +61,7 @@ public:
     G4double GetEDepMax() { return fEdepMax; }
     G4double IsConvPosSet() { return fConvPosSet; }
 
-    G4int GetEventID() {return fEventID;}
+    G4int GetEventID() { return fEventID; }
 
     // Gets the total photon count produced
     G4int GetPhotonCount() { return fPhotonCount_Scint + fPhotonCount_Ceren; }
@@ -71,7 +71,7 @@ public:
 
 private:
     //    MLCEventMessenger* fEventMessenger;
-    const MLCDetectorConstruction* fDetector;
+    const MLCDetectorConstruction *fDetector;
 
     G4int fScintCollID;
     G4int fPMTCollID;
@@ -96,8 +96,8 @@ private:
     // These only have meaning if totE > 0
     // If totE = 0 then these won't be set by EndOfEventAction
     G4ThreeVector fEWeightPos;
-    G4ThreeVector fReconPos;  // Also relies on hitCount>0
-    G4ThreeVector fConvPos;   // true (initial) converstion position
+    G4ThreeVector fReconPos; // Also relies on hitCount>0
+    G4ThreeVector fConvPos;  // true (initial) converstion position
     G4bool fConvPosSet;
     G4ThreeVector fPosMax;
     G4double fEdepMax;
@@ -106,4 +106,3 @@ private:
 };
 
 #endif
-

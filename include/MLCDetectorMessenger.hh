@@ -16,20 +16,20 @@ class G4UIdirectory;
 
 class MLCDetectorMessenger : public G4UImessenger
 {
-  public:
-  MLCDetectorMessenger(MLCDetectorConstruction*);
+public:
+  MLCDetectorMessenger(MLCDetectorConstruction *);
   ~MLCDetectorMessenger();
 
-  void SetNewValue(G4UIcommand*, G4String) override;   
+  void SetNewValue(G4UIcommand *, G4String) override;
 
-  private:
-  MLCDetectorConstruction* fMLCDetector;
-  G4UIdirectory* fDetectorDir;
-  G4UIcmdWithADouble* fScintyieldCmd;
-  G4UIcmdWithADoubleAndUnit* fPolythickCmd;
-  G4UIcmdWithABool* fDegraderCmd;
-  G4UIcmdWithABool* fLayerCmd;
-  G4UIcmdWithAnInteger* fFileidCmd;
+private:
+  MLCDetectorConstruction *fMLCDetector;
+  G4UIdirectory *fDetectorDir;
+  G4UIcmdWithADouble *fScintyieldCmd;
+  G4UIcmdWithADoubleAndUnit *fPolythickCmd;
+  G4UIcmdWithABool *fDegraderCmd;
+  G4UIcmdWithABool *fLayerCmd;
+  G4UIcmdWithAnInteger *fFileidCmd;
 };
 
 #endif

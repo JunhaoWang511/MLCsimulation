@@ -18,12 +18,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 MLCPSD::MLCPSD(G4String name)
-    : G4VSensitiveDetector(name)
-    , fPSDHitCollection(nullptr)
-    , fPSDPositionsX(nullptr)
-    , fPSDPositionsY(nullptr)
-    , fPSDPositionsZ(nullptr)
-    , fHitCID(-1)
+    : G4VSensitiveDetector(name), fPSDHitCollection(nullptr), fPSDPositionsX(nullptr), fPSDPositionsY(nullptr), fPSDPositionsZ(nullptr), fHitCID(-1)
 {
     collectionName.insert("PSDHitCollection");
 }
@@ -39,7 +34,7 @@ MLCPSD::~MLCPSD()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void MLCPSD::SetPSDPositions(const std::vector<G4ThreeVector>& positions)
+void MLCPSD::SetPSDPositions(const std::vector<G4ThreeVector> &positions)
 {
     for (size_t i = 0; i < positions.size(); ++i)
     {
@@ -54,7 +49,7 @@ void MLCPSD::SetPSDPositions(const std::vector<G4ThreeVector>& positions)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void MLCPSD::Initialize(G4HCofThisEvent* hitsCE)
+void MLCPSD::Initialize(G4HCofThisEvent *hitsCE)
 {
     fPSDHitCollection =
         new MLCPSDHitsCollection(SensitiveDetectorName, collectionName[0]);
@@ -68,24 +63,24 @@ void MLCPSD::Initialize(G4HCofThisEvent* hitsCE)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4bool MLCPSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) 
+G4bool MLCPSD::ProcessHits(G4Step *aStep, G4TouchableHistory *)
 {
-    // Only record primary particle proton   
-    if(aStep->GetTrack()->GetParentID()!=0)
-    return false;
+    // Only record primary particle proton
+    if (aStep->GetTrack()->GetParentID() != 0)
+        return false;
     // User replica number 0 since PSD is a mother volume
     // to the world which was replicated
     G4int PSDNumber =
         aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber();
 
-    G4VPhysicalVolume* physVol =
+    G4VPhysicalVolume *physVol =
         aStep->GetPreStepPoint()->GetTouchable()->GetVolume();
-    
+
     G4ThreeVector pos = aStep->GetPreStepPoint()->GetPosition();
 
     // Find the correct hit collection
     size_t n = fPSDHitCollection->entries();
-    MLCPSDHit* hit = nullptr;
+    MLCPSDHit *hit = nullptr;
     for (size_t i = 0; i < n; ++i)
     {
         if ((*fPSDHitCollection)[i]->GetPSDNumber() == PSDNumber)
@@ -96,17 +91,16 @@ G4bool MLCPSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
     }
 
     if (hit == nullptr)
-    {                            // this PSD wasn't previously hit in this event
-        hit = new MLCPSDHit();  // so create new hit
+    {                          // this PSD wasn't previously hit in this event
+        hit = new MLCPSDHit(); // so create new hit
         hit->SetPSDNumber(PSDNumber);
         hit->SetPSDPhysVol(physVol);
         fPSDHitCollection->insert(hit);
         hit->SetPSDPos((*fPSDPositionsX)[PSDNumber], (*fPSDPositionsY)[PSDNumber],
-            (*fPSDPositionsZ)[PSDNumber]);
+                       (*fPSDPositionsZ)[PSDNumber]);
     }
 
     hit->SetPos(pos);
 
     return true;
 }
-

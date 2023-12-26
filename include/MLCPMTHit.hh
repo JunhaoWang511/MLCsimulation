@@ -11,14 +11,14 @@ class MLCPMTHit : public G4VHit
 {
 public:
     MLCPMTHit();
-    MLCPMTHit(const MLCPMTHit& right);
+    MLCPMTHit(const MLCPMTHit &right);
     ~MLCPMTHit();
 
-    const MLCPMTHit& operator=(const MLCPMTHit& right);
-    G4bool operator==(const MLCPMTHit& right) const;
+    const MLCPMTHit &operator=(const MLCPMTHit &right);
+    G4bool operator==(const MLCPMTHit &right) const;
 
-    inline void* operator new(size_t);
-    inline void operator delete(void* aHit);
+    inline void *operator new(size_t);
+    inline void operator delete(void *aHit);
 
     virtual void Draw();
     virtual void Print();
@@ -32,11 +32,11 @@ public:
     inline void SetPMTNumber(G4int n) { fPmtNumber = n; }
     inline G4int GetPMTNumber() { return fPmtNumber; }
 
-    inline void SetPMTPhysVol(G4VPhysicalVolume* physVol)
+    inline void SetPMTPhysVol(G4VPhysicalVolume *physVol)
     {
         this->fPhysVol = physVol;
     }
-    inline G4VPhysicalVolume* GetPMTPhysVol() { return fPhysVol; }
+    inline G4VPhysicalVolume *GetPMTPhysVol() { return fPhysVol; }
 
     inline void SetPMTPos(G4double x, G4double y, G4double z)
     {
@@ -49,25 +49,24 @@ private:
     G4int fPmtNumber;
     G4int fPhotons;
     G4ThreeVector fPos;
-    G4VPhysicalVolume* fPhysVol;
+    G4VPhysicalVolume *fPhysVol;
     G4bool fDrawit;
 };
 
 typedef G4THitsCollection<MLCPMTHit> MLCPMTHitsCollection;
 
-extern G4ThreadLocal G4Allocator<MLCPMTHit>* MLCPMTHitAllocator;
+extern G4ThreadLocal G4Allocator<MLCPMTHit> *MLCPMTHitAllocator;
 
-inline void* MLCPMTHit::operator new(size_t)
+inline void *MLCPMTHit::operator new(size_t)
 {
     if (!MLCPMTHitAllocator)
         MLCPMTHitAllocator = new G4Allocator<MLCPMTHit>;
-    return (void*)MLCPMTHitAllocator->MallocSingle();
+    return (void *)MLCPMTHitAllocator->MallocSingle();
 }
 
-inline void MLCPMTHit::operator delete(void* aHit)
+inline void MLCPMTHit::operator delete(void *aHit)
 {
-    MLCPMTHitAllocator->FreeSingle((MLCPMTHit*)aHit);
+    MLCPMTHitAllocator->FreeSingle((MLCPMTHit *)aHit);
 }
 
 #endif
-

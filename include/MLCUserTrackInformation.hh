@@ -2,7 +2,7 @@
 #include "globals.hh"
 
 #ifndef MLCUserTrackInformation_h
-#  define MLCUserTrackInformation_h 1
+#define MLCUserTrackInformation_h 1
 
 enum MLCTrackStatus
 {
@@ -10,7 +10,6 @@ enum MLCTrackStatus
 	hitPMT = 2,
 	absorbed = 4,
 	boundaryAbsorbed = 8,
-	hitSphere = 16,
 	inactive = 14
 };
 

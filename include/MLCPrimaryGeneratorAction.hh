@@ -12,11 +12,10 @@ public:
 	MLCPrimaryGeneratorAction();
 	~MLCPrimaryGeneratorAction();
 
-	void GeneratePrimaries(G4Event* anEvent) override;
+	void GeneratePrimaries(G4Event *anEvent) override;
 
 private:
-	G4ParticleGun* fParticleGun;
+	G4ParticleGun *fParticleGun;
 };
 
 #endif
-

@@ -48,7 +48,7 @@ public:
         fPMTsAboveThreshold2 += count * count;
     }
 
-    void Merge(const G4Run* run) override;
+    void Merge(const G4Run *run) override;
 
     void EndOfRun();
 
@@ -70,5 +70,4 @@ private:
     G4double fTotE2;
 };
 
-#endif  // MLCRun_h
-
+#endif // MLCRun_h

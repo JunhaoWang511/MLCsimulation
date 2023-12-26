@@ -15,13 +15,13 @@ MLCPrimaryGeneratorAction::MLCPrimaryGeneratorAction()
     G4int n_particle = 1;
     fParticleGun = new G4ParticleGun(n_particle);
 
-    G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+    G4ParticleTable *particleTable = G4ParticleTable::GetParticleTable();
 
     G4String particleName;
     fParticleGun->SetParticleDefinition(
         particleTable->FindParticle(particleName = "proton"));
     // Default energy,position,momentum
-    fParticleGun->SetParticleEnergy( 100 * MeV);
+    fParticleGun->SetParticleEnergy(100 * MeV);
     fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0., 1., 0.));
 }
 
@@ -31,11 +31,11 @@ MLCPrimaryGeneratorAction::~MLCPrimaryGeneratorAction() { delete fParticleGun; }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void MLCPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
+void MLCPrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
 {
-    G4double zmax=1.25*cm,xmax=1.25*cm;
-    G4double z = zmax*(2*G4UniformRand() - 1);
-    G4double x = xmax*(2*G4UniformRand() - 1);
+    G4double zmax = 1.25 * cm, xmax = 1.25 * cm;
+    G4double z = zmax * (2 * G4UniformRand() - 1);
+    G4double x = xmax * (2 * G4UniformRand() - 1);
     fParticleGun->SetParticlePosition(G4ThreeVector(x, -50 * cm, z));
     fParticleGun->GeneratePrimaryVertex(anEvent);
 }

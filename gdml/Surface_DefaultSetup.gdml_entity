@@ -1,0 +1,21 @@
+<!-- this is a file defining Surface Setup in split.gdml -->
+<!-- it is _not_ a standalone GDML file -->
+<!-- This file should be referenced in <structure></structure>-->
+<!-- Dependencies : .gdml/PropertyDB/MaterialDB/SurfaceDB.gdml_entity-->
+
+<skinsurface name="scintillator_skin" surfaceproperty="Tyvek" >
+  <volumeref ref="scintillator_lv"/>
+</skinsurface>
+
+<skinsurface name="SiPM_skin" surfaceproperty="SiPM_OpSurface" >
+  <volumeref ref="channel_lv"/>
+</skinsurface>
+
+<skinsurface name="outshell_skin" surfaceproperty="Black">
+  <volumeref ref="outshell_EpoxyResin"/>
+</skinsurface>
+
+<bordersurface name="LYSO-filter_border" surfaceproperty="LYSO-NDfilter_OpSurface" >
+  <physvolref ref="scintillator_lv_PV"/>
+  <physvolref ref="filter_lv_PV"/>
+</bordersurface>

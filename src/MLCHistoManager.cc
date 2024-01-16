@@ -36,26 +36,7 @@ void MLCHistoManager::Book()
     analysisManager->SetNtupleMerging(true);
 
     // Define histograms and tuples
-
-    // 0
-    analysisManager->CreateH1("stop Y", "stop Y position", 1000, 0, 10);
-
-    // photon distribution histograms(1,2,3...)
-    G4int PhotonNumber = 100000;
-    // G4cout << "photonnumber are " << PhotonNumber << G4endl;
-    // G4cout << "layer number are " << fLayer << G4endl;
-
-    // 1-16
-    G4String Name = "ChNo.";
-    for (G4int i = 0; i < 16; i++)
-    {
-        G4String NameSerial = Name + std::to_string(i + 1);
-        analysisManager->CreateH1(NameSerial, "photon_number_distribution", PhotonNumber, 0, PhotonNumber, "none", "none");
-    }
-
-    // 0
-    analysisManager->CreateH2("stop X-Z", "stop X-Z position", 100, -1.25, 1.25, 100, -1.25, 1.25, "none", "none", "none", "none");
-
+    // Ntuple id = 0
     analysisManager->CreateNtuple("PSDposition_PMTcollection", "PSDposition_PMTcollection");
     analysisManager->CreateNtupleDColumn("Pos1X"); // 0
     analysisManager->CreateNtupleDColumn("Pos1Z"); // 1
@@ -71,11 +52,16 @@ void MLCHistoManager::Book()
         analysisManager->CreateNtupleIColumn(Namei);
     }
     analysisManager->FinishNtuple();
+    // Ntuple id = 1
+    analysisManager->CreateNtuple("EnergyDeposition_ParticleName", "EnergyDeposition_ParticleName");
+    analysisManager->CreateNtupleDColumn("Edep");
+    analysisManager->CreateNtupleSColumn("PName");
+    analysisManager->CreateNtupleIColumn("EventId");
+    analysisManager->FinishNtuple();
 
     // Create all histograms as inactivated
     for (G4int i = 0; i < analysisManager->GetNofH1s(); ++i)
     {
         analysisManager->SetH1Activation(i, false);
     }
-    analysisManager->SetH2Activation(0, false);
 }

@@ -71,16 +71,11 @@ void MLCEventAction::BeginOfEventAction(const G4Event *anEvent)
         fScintCollID = SDman->GetCollectionID("scintCollection");
     if (fPMTCollID < 0)
         fPMTCollID = SDman->GetCollectionID("pmtHitCollection");
-    if (fPSDCollID < 0)
-        fPSDCollID = SDman->GetCollectionID("PSDHitCollection");
-
-    /*long* fEventSeeds = new long[2];
-    fEventSeeds[0]=89999820;
-    fEventSeeds[1]=48102940;
-    CLHEP::HepRandom::setTheSeeds(fEventSeeds,4);*/
-
-    G4cout << "EventID: " << fEventID << G4endl;
-    G4cout << "index: " << CLHEP::HepRandom::getTheSeed() << " seed1:" << CLHEP::HepRandom::getTheSeeds()[0] << " seed2:" << CLHEP::HepRandom::getTheSeeds()[1] << G4endl;
+    // if (fPSDCollID < 0)
+    //     fPSDCollID = SDman->GetCollectionID("PSDHitCollection");
+    if (fEventID % 1000 == 0)
+        G4cout << "EventID: " << fEventID << G4endl;
+    // G4cout << "index: " << CLHEP::HepRandom::getTheSeed() << " seed1:" << CLHEP::HepRandom::getTheSeeds()[0] << " seed2:" << CLHEP::HepRandom::getTheSeeds()[1] << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -126,10 +121,10 @@ void MLCEventAction::EndOfEventAction(const G4Event *anEvent)
         {
             pmtHC = (MLCPMTHitsCollection *)(hitsCE->GetHC(fPMTCollID));
         }
-        if (fPSDCollID >= 0)
-        {
-            psdHC = (MLCPSDHitsCollection *)(hitsCE->GetHC(fPSDCollID));
-        }
+        // if (fPSDCollID >= 0)
+        // {
+        //     psdHC = (MLCPSDHitsCollection *)(hitsCE->GetHC(fPSDCollID));
+        // }
     }
 
     // Hits in scintillator
@@ -141,13 +136,10 @@ void MLCEventAction::EndOfEventAction(const G4Event *anEvent)
         G4double edep;
         G4double edepMax = 0;
         G4ThreeVector PosEnd(0.);
-        /*G4int TrackIDmax=0;
-        G4int TrackIDtemp=0;*/
 
         for (size_t i = 0; i < n_hit; ++i)
-        { // gather info on hits in scintillator
-            /*TrackIDtemp=(*scintHC)[i]->GetTrackid();
-            if(TrackIDtemp > TrackIDmax){TrackIDmax = TrackIDtemp; }*/
+        {
+            // gather info on hits in scintillator
             edep = (*scintHC)[i]->GetEdep();
             fTotE += edep;
             eWeightPos +=
@@ -164,16 +156,6 @@ void MLCEventAction::EndOfEventAction(const G4Event *anEvent)
                 PosEnd = (*scintHC)[i]->GetPos();
             }
         }
-        G4AnalysisManager::Instance()->FillH1(0, PosEnd.getY() / cm + 5.);
-
-        /*if(TrackIDmax == 1)
-        {
-            PosEnd=(*scintHC)[n_hit-1]->GetPos1();
-            G4AnalysisManager::Instance()->FillH1(0, PosEnd.getY()/cm + 5. );
-            //G4AnalysisManager::Instance()->FillH2(0, PosEnd.getX()/cm,PosEnd.getZ()/cm);
-        }*/
-
-        // G4AnalysisManager::Instance()->FillH1(7, fTotE);
 
         if (fTotE == 0.)
         {
@@ -182,6 +164,10 @@ void MLCEventAction::EndOfEventAction(const G4Event *anEvent)
         }
         else
         {
+            G4AnalysisManager::Instance()->FillNtupleDColumn(1, 0, fTotE / MeV);
+            G4AnalysisManager::Instance()->FillNtupleSColumn(1, 1, (*scintHC)[0]->GetParticleName());
+            G4AnalysisManager::Instance()->FillNtupleIColumn(1, 2, fEventID);
+            G4AnalysisManager::Instance()->AddNtupleRow(1);
             // Finish calculation of energy weighted position
             eWeightPos /= fTotE;
             fEWeightPos = eWeightPos;
@@ -206,8 +192,8 @@ void MLCEventAction::EndOfEventAction(const G4Event *anEvent)
         {
             G4ThreeVector pos = (*psdHC)[i]->GetPos();
             // G4cout<<"PSD hit position is: x="<<pos.getX()/cm<<" y="<<pos.getY()/cm<<" z="<<pos.getZ()/cm<<G4endl;
-            G4AnalysisManager::Instance()->FillNtupleDColumn(2 * i, pos.getX() / cm);
-            G4AnalysisManager::Instance()->FillNtupleDColumn(2 * i + 1, pos.getZ() / cm);
+            G4AnalysisManager::Instance()->FillNtupleDColumn(0, 2 * i, pos.getX() / cm);
+            G4AnalysisManager::Instance()->FillNtupleDColumn(0, 2 * i + 1, pos.getZ() / cm);
         }
     }
 
@@ -215,17 +201,15 @@ void MLCEventAction::EndOfEventAction(const G4Event *anEvent)
     {
         G4ThreeVector reconPos(0., 0., 0.);
         size_t pmts = pmtHC->entries();
-        // G4cout<<"PMT number is"<<pmts<<G4endl;
         G4int copynumber;
         // Gather info from all PMTs
         for (size_t i = 0; i < pmts; ++i)
         {
-            G4cout << "the " << (*pmtHC)[i]->GetPMTNumber() << " pmt's photon number is " << (*pmtHC)[i]->GetPhotonCount() << G4endl;
+            // G4cout << "the " << (*pmtHC)[i]->GetPMTNumber() << " pmt's photon number is " << (*pmtHC)[i]->GetPhotonCount() << G4endl;
             copynumber = (*pmtHC)[i]->GetPMTNumber();
             fHitCount += (*pmtHC)[i]->GetPhotonCount();
             // G4cout<<"the "<<i<<"th pmt has photon counts="<<(*pmtHC)[i]->GetPhotonCount()<<G4endl;
-            // G4AnalysisManager::Instance()->FillH1(copynumber+1, (*pmtHC)[i]->GetPhotonCount());
-            G4AnalysisManager::Instance()->FillNtupleIColumn(copynumber + 8, (*pmtHC)[i]->GetPhotonCount());
+            // G4AnalysisManager::Instance()->FillNtupleIColumn(0, copynumber + 8, (*pmtHC)[i]->GetPhotonCount());
             reconPos += (*pmtHC)[i]->GetPMTPos() * (*pmtHC)[i]->GetPhotonCount();
             if ((*pmtHC)[i]->GetPhotonCount() >= fPMTThreshold)
             {
@@ -236,9 +220,6 @@ void MLCEventAction::EndOfEventAction(const G4Event *anEvent)
                 (*pmtHC)[i]->SetDrawit(false);
             }
         }
-
-        /*G4AnalysisManager::Instance()->FillH1(1, fHitCount);
-        G4AnalysisManager::Instance()->FillH1(2, fPMTsAboveThreshold);*/
 
         if (fHitCount > 0)
         { // don't bother unless there were hits
@@ -252,17 +233,8 @@ void MLCEventAction::EndOfEventAction(const G4Event *anEvent)
         }
         pmtHC->DrawAllHits();
     }
-    G4AnalysisManager::Instance()->AddNtupleRow();
+    // G4AnalysisManager::Instance()->AddNtupleRow(0);
 
-    /*G4AnalysisManager::Instance()->FillH1(3, fPhotonCount_Scint);
-    G4AnalysisManager::Instance()->FillH1(4, fPhotonCount_Ceren);
-    G4AnalysisManager::Instance()->FillH1(5, fAbsorptionCount);
-    G4AnalysisManager::Instance()->FillH1(6, fBoundaryAbsorptionCount);*/
-    if (fHitCount < 0)
-    {
-        G4cout << "wrong photon number" << G4endl;
-        G4RunManager::GetRunManager()->rndmSaveThisEvent();
-    }
     if (fVerbose > 0)
     {
         // End of event output. later to be controlled by a verbose level
@@ -295,12 +267,6 @@ void MLCEventAction::EndOfEventAction(const G4Event *anEvent)
     run->IncAbsorption(fAbsorptionCount);
     run->IncBoundaryAbsorption(fBoundaryAbsorptionCount);
     run->IncHitsAboveThreshold(fPMTsAboveThreshold);
-
-    // If we have set the flag to save 'special' events, save here
-    /*    if (fPhotonCount_Scint + fPhotonCount_Ceren < fDetector->GetSaveThreshold())
-        {
-            G4RunManager::GetRunManager()->rndmSaveThisEvent();
-        }*/
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

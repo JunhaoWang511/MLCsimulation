@@ -1,0 +1,20 @@
+<!-- this is a file defining G4OpticalSurface in split.gdml -->
+<!-- it is _not_ a standalone GDML file -->
+<!-- This file should be referenced in <solids></solids>-->
+<!-- Dependencies : MaterialDB.gdml_entity-->
+
+<opticalsurface name="SiPM_OpSurface" model="unified" finish="polished" type="dielectric_metal" value="0."/>
+<opticalsurface name="LYSO-NDfilter_OpSurface" model="unified" finish="polished" type="dielectric_dielectric" value="0." />
+
+<!-- From GATE v7.2 Surfaces.xml -->
+<opticalsurface name="Black" model="unified" finish="ground" type="dielectric_metal" value="0." />
+<opticalsurface name="Teflon-polished" model="unified" finish="groundbackpainted" type="dielectric_dielectric" value="0.1" />
+<opticalsurface name="Teflon-rough" model="unified" finish="groundbackpainted" type="dielectric_dielectric" value="6.0" />
+
+<!-- AS Gamma Exp. Simulation -->
+<opticalsurface name="Tyvek" model="unified" finish="ground" type="dielectric_metal" value="0.2" />
+<opticalsurface name="EJ200-polished" model="unified" finish="ground" type="dielectric_dielectric" value="0.04" />
+<opticalsurface name="EJ200-rough" model="unified" finish="ground" type="dielectric_dielectric" value="0.12" />
+
+<!-- BES TOF Simu by LiXin-->
+<opticalsurface name="Al-foil" model="unified" finish="polished" type="dielectric_metal" value="0." />

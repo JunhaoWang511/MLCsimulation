@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE gdml [
+  <!ENTITY Config SYSTEM "Config.gdml_entity">
+  <!ENTITY Property SYSTEM "PropertyDB.gdml_entity">
+  <!ENTITY Material SYSTEM "MaterialDB.gdml_entity">
+  <!ENTITY Solid SYSTEM "SolidDB.gdml_entity">
+  <!ENTITY Surface SYSTEM "SurfaceDB.gdml_entity">
+  <!ENTITY Surface_Setup SYSTEM "Surface_DefaultSetup.gdml_entity">
+  <!ENTITY MainLV SYSTEM "Main_LogicalVolume.gdml_entity">
+  <!ENTITY World SYSTEM "World_Placement.gdml_entity">
+  <!ENTITY Addition_Aux SYSTEM "Additional_Auxiliary.gdml_entity">
+]>
+
+<gdml xmlns:gdml="http://gdml.web.cern.ch/GDML/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="./schema/gdml.xsd">
+
+  <define>
+    &Config;
+    &Property;
+  </define>
+
+  <materials>
+    &Material;
+  </materials>
+
+  <solids>
+    &Solid;
+    &Surface;
+  </solids>
+
+  <structure>
+    &MainLV;
+    &World;
+    &Surface_Setup;    
+  </structure>
+
+  <userinfo>
+    &Addition_Aux;
+  </userinfo>
+
+  <setup name="LYSO_Detector" version="2" >
+    <world ref="World" />
+  </setup>
+
+</gdml>

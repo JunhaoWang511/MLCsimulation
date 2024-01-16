@@ -35,23 +35,12 @@ void MLCRunAction::BeginOfRunAction(const G4Run * /*run*/)
     fHistoManager->Book();
     // G4cout<<"the file id is "<<fHistoManager->GetFileID()<<G4endl;
     analysisManager->OpenFile();
-
-    /*if (analysisManager->IsActive())
-    {
-        analysisManager->OpenFile();
-    }*/
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void MLCRunAction::EndOfRunAction(const G4Run * /*run*/)
 {
-    // save histograms
-    /*if (analysisManager->IsActive())
-    {
-        analysisManager->Write();
-        analysisManager->CloseFile();
-    }*/
     G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
     analysisManager->Write();
     analysisManager->CloseFile();

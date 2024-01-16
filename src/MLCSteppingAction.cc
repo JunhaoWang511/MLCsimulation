@@ -157,7 +157,7 @@ void MLCSteppingAction::UserSteppingAction(const G4Step *theStep)
                 // Trigger sensitive detector manually since photon is
                 // absorbed but status was Detection
                 G4SDManager *SDman = G4SDManager::GetSDMpointer();
-                G4String sdName = "/MLCDet/pmtSD";
+                G4String sdName = "PMT_SD";
                 MLCPMTSD *pmtSD = (MLCPMTSD *)SDman->FindSensitiveDetector(sdName);
                 if (pmtSD)
                     pmtSD->ProcessHits_boundary(theStep, nullptr);

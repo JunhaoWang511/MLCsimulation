@@ -1,0 +1,27 @@
+<!-- this is a file defining the placement of detector main part and imported detector outshell in split.gdml -->
+<!-- it is _not_ a standalone GDML file -->
+<!-- This file should be referenced in <structure></structure>-->
+<!-- Dependencies : Config/MaterialDB/SolidDB.gdml_entity-->
+
+<volume name="World">
+  <materialref ref="AIR" />
+  <solidref ref="world_box" />
+  <physvol>
+    <volumeref ref="SiPM_lv"/>
+    <positionref ref="SiPMInWorld_pos"/>
+  </physvol>
+  <physvol>
+    <volumeref ref="scintillator_lv"/>
+    <positionref ref="scintillatorInWorld_pos"/>
+  </physvol>
+  <physvol>
+    <volumeref ref="filter_lv"/>
+    <positionref ref="filterInWorld_pos"/>
+  </physvol>
+  <physvol>
+    <file name="./gdml/PCB_FR4.gdml"/>
+  </physvol>
+  <physvol>
+    <file name="./gdml/outshell_EpoxyResin.gdml"/>
+  </physvol>
+</volume>

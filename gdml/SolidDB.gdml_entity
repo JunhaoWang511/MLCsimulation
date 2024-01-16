@@ -1,0 +1,21 @@
+<!-- this is a file defining G4VSolid in split.gdml -->
+<!-- it is _not_ a standalone GDML file -->
+<!-- This file should be referenced in <solids></solids>-->
+<!-- Dependencies : Config.gdml_entity-->
+
+<!-- define world  -->
+<box lunit="mm" name="world_box" x="10000" y="10000" z="10000"/>
+
+<!-- define sensitive area, composed of LYSO, filter and SiPM -->
+<box lunit="mm" name="sensitive_box" x="scintillator_size" y="scintillator_size" z="sensitive_length"/>
+
+<!-- define solid for LYSO crystal -->
+<box lunit="mm" name="scintillator_box" x="scintillator_size" y="scintillator_size" z="scintillator_size"/>
+
+<!-- define solid for ND filter -->
+<box lunit="mm" name="filter_box" x="scintillator_size" y="scintillator_size" z="filter_thickness"/>
+
+<!-- define solids for SiPM -->
+<box lunit="mm" name="SiPM_box" x="scintillator_size" y="scintillator_size" z="SiPM_thickness"/>
+<box lunit="mm" name="window_box" x="scintillator_size" y="scintillator_size" z="window_thickness"/>
+<box lunit="mm" name="channel_box" x="channel_length" y="channel_length" z="channel_thickness"/>

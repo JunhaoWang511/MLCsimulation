@@ -1,0 +1,44 @@
+<!-- this is a file defining main part of detector (G4LogicalVolume) in split.gdml -->
+<!-- it is _not_ a standalone GDML file -->
+<!-- This file should be referenced in <structure></structure>-->
+<!-- Dependencies : Config/MaterialDB/SolidDB.gdml_entity-->
+
+<!-- LYSO crystal logical volume -->
+<volume name="scintillator_lv">
+  <materialref ref="LYSO"/>
+  <solidref ref="scintillator_box"/>
+</volume>
+
+<!-- ND filter logical volume -->
+<volume name="filter_lv">
+  <materialref ref="ND-50"/>
+  <solidref ref="filter_box"/>
+</volume>
+
+<!-- SiPM logical volume -->
+<volume name="channel_lv">
+  <materialref ref="Silicon"/>
+  <solidref ref="channel_box"/>
+</volume>
+
+<volume name="window_lv">
+  <materialref ref="EpoxyResin"/>
+  <solidref ref="window_box"/>
+</volume>
+
+<volume name="SiPM_lv">
+  <materialref ref="FR4"/>
+  <solidref ref="SiPM_box"/>
+  <physvol>
+    <volumeref ref="window_lv"/>
+    <positionref ref="windowInSiPM_pos"/>
+  </physvol>
+  <loop for="channelX" from="0" to="3" step="1">
+    <loop for="channelY" from="0" to="3" step="1">
+      <physvol copynumber="channelX*4+channelY">
+        <volumeref ref="channel_lv"/>
+        <position unit="mm" x="(channelX-1.5)*channel_gap" y="(channelY-1.5)*channel_gap" z="channel_posZ"/>
+      </physvol>
+    </loop>
+  </loop>
+</volume>

@@ -44,10 +44,13 @@ set(OUTPUT_DIR ${PROJECT_BINARY_DIR}/output)
 # make directory to store output file.
 execute_process( COMMAND ${CMAKE_COMMAND} -E make_directory ${OUTPUT_DIR})
 
+file(GLOB_RECURSE gdmlfiles RELATIVE ${PROJECT_SOURCE_DIR} gdml/**)
+
 set(MLC_SCRIPTS
     gui.mac
     vis.mac
     run.mac
+    ${gdmlfiles}
    )
 
 foreach(_script ${MLC_SCRIPTS})

@@ -60,12 +60,7 @@ int main(int argc, char **argv)
     }
     CLHEP::HepRandom::setTheSeed(seed);
 
-    /*long* fEventSeeds = new long[2];
-    fEventSeeds[0]=1923059987;
-    fEventSeeds[1]=355212931;
-    CLHEP::HepRandom::setTheSeeds(fEventSeeds,171);*/
-
-    // creat run manager 
+    // creat run manager
     auto runManager = G4RunManagerFactory::CreateRunManager();
     // creat detector by using GDML files or default geometry
     MLCDetectorConstruction *det;
@@ -136,7 +131,11 @@ int main(int argc, char **argv)
         G4String fileName = argv[2];
         UImanager->ApplyCommand(command + fileName);
     }
-
+    if (argc >= 3)
+    {
+        clock_t endtime = clock();
+        std::cout << "job ends with time consumption: " << endtime / CLOCKS_PER_SEC << " s." << G4endl;
+    }
     // job termination
     delete visManager;
     delete runManager;

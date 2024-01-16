@@ -1,10 +1,5 @@
 /run/numberOfThreads 1
 /run/initialize
 /gun/energy 100 MeV
-/MLC/detector/divide_layer true
-/MLC/detector/yield 30000
-/MLC/detector/add_degrader false
-/MLC/detector/degrader 3 cm
-#/gun/position 0 -40 0
 /run/beamOn 100
 

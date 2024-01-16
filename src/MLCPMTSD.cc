@@ -81,10 +81,10 @@ G4bool MLCPMTSD::ProcessHits_boundary(const G4Step *aStep, G4TouchableHistory *)
     // User replica number 1 since photocathode is a daughter volume
     // to the pmt which was replicated
     G4int pmtNumber =
-        aStep->GetPostStepPoint()->GetTouchable()->GetReplicaNumber(1);
+        aStep->GetPostStepPoint()->GetPhysicalVolume()->GetCopyNo();
 
     G4VPhysicalVolume *physVol =
-        aStep->GetPostStepPoint()->GetTouchable()->GetVolume(1);
+        aStep->GetPostStepPoint()->GetPhysicalVolume();
 
     // Find the correct hit collection
     size_t n = fPMTHitCollection->entries();
@@ -104,8 +104,8 @@ G4bool MLCPMTSD::ProcessHits_boundary(const G4Step *aStep, G4TouchableHistory *)
         hit->SetPMTNumber(pmtNumber);
         hit->SetPMTPhysVol(physVol);
         fPMTHitCollection->insert(hit);
-        hit->SetPMTPos((*fPMTPositionsX)[pmtNumber], (*fPMTPositionsY)[pmtNumber],
-                       (*fPMTPositionsZ)[pmtNumber]);
+        // hit->SetPMTPos((*fPMTPositionsX)[pmtNumber], (*fPMTPositionsY)[pmtNumber],
+        //                (*fPMTPositionsZ)[pmtNumber]);
     }
 
     hit->IncPhotonCount(); // increment hit for the selected pmt

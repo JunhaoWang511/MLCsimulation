@@ -12,6 +12,7 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4VProcess.hh"
 #include "G4VTouchable.hh"
+#include "G4OpticalPhoton.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -46,8 +47,8 @@ G4bool MLCScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory *)
 {
     G4double stepL = aStep->GetStepLength();
     G4double edep = aStep->GetTotalEnergyDeposit();
-    if (edep == 0.)
-        return false; // No edep so don't count as hit
+    if (edep == 0. || (aStep->GetTrack()->GetParticleDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()))
+        return false; // don't count as a hit if it is optical photon absorption or its energy deposition is zero
 
     G4StepPoint *thePrePoint = aStep->GetPreStepPoint();
     G4TouchableHistory *theTouchable =
@@ -76,7 +77,6 @@ G4bool MLCScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory *)
     {
         scintHit->SetPrimary(false);
     }
-
     scintHit->SetKineticEnergy(KEnergy);
     scintHit->SetParticleName(theTrack->GetParticleDefinition()->GetParticleName());
     scintHit->SetTrackid(theTrack->GetTrackID());

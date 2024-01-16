@@ -1,0 +1,62 @@
+<!-- this is a file defining Surface property, Visualization attribute set and Sensitive detector assignment in split.gdml -->
+<!-- it is _not_ a standalone GDML file -->
+<!-- This file should be referenced in <structure></structure>-->
+<!-- Dependencies : .gdml/PropertyDB/MaterialDB/SurfaceDB.gdml_entity-->
+<!-- surface property set up -->
+<auxiliary auxtype="Surface_Property">
+  <!-- skin surface of LYSO crystal wrapped with Tyvek paper -->
+  <auxiliary auxtype="Skin" auxvalue="ScintillatorWrapper">
+    <auxiliary auxtype="SurfaceName" auxvalue="Tyvek" />
+    <auxiliary auxtype="LVname" auxvalue="scintillator_lv" />
+    <auxiliary auxtype="Material" auxvalue="OpSurface_Tyvek" />
+      </auxiliary>
+  <!-- skin surface of each SiPM channel with total absorbance and non-zero efficiency -->
+  <auxiliary auxtype="Skin" auxvalue="SensitiveSurface">
+    <auxiliary auxtype="SurfaceName" auxvalue="SiPM_OpSurface" />
+    <auxiliary auxtype="LVname" auxvalue="channel_lv" />
+    <auxiliary auxtype="Material" auxvalue="SiPM_OpSurfaceMaterial" />
+      </auxiliary>
+  <!-- skin surface of detector outshell with black surface -->
+  <auxiliary auxtype="Skin" auxvalue="OutshellSurface">
+    <auxiliary auxtype="SurfaceName" auxvalue="Black"/>
+    <auxiliary auxtype="LVname" auxvalue="outshell_EpoxyResin"/>
+    <auxiliary auxtype="Material" auxvalue="OpSurface_Black"/>
+    </auxiliary>
+  <!-- border surface from LYSO scintillator to ND filter, by which photons can pass -->
+  <auxiliary auxtype="Border" auxvalue="LYSO-NDfilterSurface">
+    <auxiliary auxtype="SurfaceName" auxvalue="LYSO-NDfilter_OpSurface" />
+    <auxiliary auxtype="PVname" auxvalue="scintillator_lv_PV" />
+    <auxiliary auxtype="PVname" auxvalue="filter_lv_PV" />
+      </auxiliary>
+</auxiliary>
+<!-- Visualization attribute set up -->
+<!-- <auxiliary auxtype="Visualization_attribute"> -->
+<!-- SiPM is invisible -->
+<!-- <auxiliary auxtype="LVname" auxvalue="SiPM_lv">
+    <auxiliary auxtype="Visible" auxvalue="false"/>
+    <auxiliary auxtype="Solid" auxvalue="default"/>
+    <auxiliary auxtype="ColorR" auxvalue="default"/>
+    <auxiliary auxtype="ColorG" auxvalue="default"/>
+    <auxiliary auxtype="ColorB" auxvalue="default"/>
+  </auxiliary> -->
+<!-- sensitive channels in SiPM is Green and solid -->
+<!-- <auxiliary>
+    <auxiliary auxtype="LVname" auxvalue="channel_lv"/>
+    <auxiliary auxtype="Visible" auxvalue="true"/>
+    <auxiliary auxtype="Solid" auxvalue="true"/>
+    <auxiliary auxtype="ColorR" auxvalue="channel_color[1]"/>
+    <auxiliary auxtype="ColorG" auxvalue="channel_color[2]"/>
+    <auxiliary auxtype="ColorB" auxvalue="channel_color[3]"/>
+  </auxiliary>
+</auxiliary> -->
+<!-- sensitive detector set up -->
+<auxiliary auxtype="Sensitive_Detector">
+  <auxiliary auxtype="DetectorType" auxvalue="scintillator">
+    <auxiliary auxtype="DetectorName" auxvalue="scint_SD"/>
+    <auxiliary auxtype="LVname" auxvalue="scintillator_lv"/>
+  </auxiliary>
+  <auxiliary auxtype="DetectorType" auxvalue="PMT">
+    <auxiliary auxtype="DetectorName" auxvalue="PMT_SD"/>
+    <auxiliary auxtype="LVname" auxvalue="channel_lv"/>
+  </auxiliary>
+</auxiliary>

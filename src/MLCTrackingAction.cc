@@ -32,15 +32,15 @@ void MLCTrackingAction::PostUserTrackingAction(const G4Track *aTrack)
     MLCUserTrackInformation *trackInformation =
         (MLCUserTrackInformation *)aTrack->GetUserInformation();
 
-    // Let's choose to draw only the photons that hit a pmt!!
-    /*if (aTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
+    // draw only the photons that hit a pmt
+    if (aTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
     {
         if (trackInformation->GetTrackStatus() & hitPMT)
             trajectory->SetDrawTrajectory(true);
     }
     // draw all other (not optical photon) trajectories
-    else*/
-    trajectory->SetDrawTrajectory(true);
+    else
+        trajectory->SetDrawTrajectory(true);
 
     if (trackInformation->GetForceDrawTrajectory())
         trajectory->SetDrawTrajectory(true);

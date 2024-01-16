@@ -1,0 +1,29 @@
+<!-- this is a file defining Configuration in split.gdml -->
+<!-- it is _not_ a standalone GDML file -->
+<!-- This file should be refered in <define></define>-->
+
+<!-- Units : mm, deg, g/cm3 -->
+
+<!-- Detector Configuration -->
+	<!-- Detector Box Size defined in .gdml -->
+<variable name="scintillator_size" value="25"/>
+<variable name="filter_thickness" value="1.6"/>
+<variable name="window_thickness" value="0.15"/>
+<variable name="channel_length" value="6"/>
+<variable name="channel_thickness" value="1.4"/>
+<variable name="SiPM_thickness" value="window_thickness+channel_thickness"/>
+<variable name="sensitive_length" value="scintillator_size+filter_thickness+SiPM_thickness"/>
+
+<!-- Placement -->
+<!-- Detector Position defined in .gdml-->
+<variable name="channelX" value="0"/>
+<variable name="channelY" value="0"/>
+<variable name="SiPM_gap" value="0.2"/>
+<!-- loop to place 16 channels in SiPM -->
+<variable name="channel_gap" value="SiPM_gap+channel_length"/>
+<variable name="channel_posZ" value="channel_thickness/2-SiPM_thickness/2"/>
+<!-- placement position reference -->
+<position name="windowInSiPM_pos" unit="mm" x="0" y="0" z="SiPM_thickness/2-window_thickness/2"/>
+<position name="SiPMInWorld_pos" unit="mm" x="0" y="0" z="SiPM_thickness/2"/>
+<position name="filterInWorld_pos" unit="mm" x="0" y="0" z="SiPM_thickness+filter_thickness/2"/>
+<position name="scintillatorInWorld_pos" unit="mm" x="0" y="0" z="SiPM_thickness+filter_thickness+scintillator_size/2"/>

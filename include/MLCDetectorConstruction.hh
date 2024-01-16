@@ -8,6 +8,7 @@
 
 #include "globals.hh"
 #include "G4ThreeVector.hh"
+#include "G4GDMLAuxStructType.hh"
 
 class MLCPMTSD;
 class MLCScintSD;
@@ -39,7 +40,6 @@ public:
 	void SetLayers(G4int);
 	void SetPolyThickness(G4double);
 	void SetFileId(G4int);
-	//	void SetSaveThreshold(G4int);
 
 	// Get values
 	G4double GetScintX() const { return fScint_x; }
@@ -59,8 +59,26 @@ public:
 	void SetMainScintYield(G4double);
 
 private:
-	void DefineMaterials();
+	// GDML reader functions
+	void DumpStructure();
+	void DumpVolume(G4VPhysicalVolume *physvol, G4String prefix, G4bool expanded = true) const;
+	void ReadAuxiliary();
+	void PrintAuxiliary(const G4GDMLAuxListType *, G4String);
+	void ReadSurfaceProperty(const G4GDMLAuxListType *, G4String);
+	G4bool ReadBorderProperty(const G4GDMLAuxListType *, G4String);
+	G4bool ReadSkinProperty(const G4GDMLAuxListType *, G4String);
+	void ReadSensitiveDetector(const G4GDMLAuxListType *, G4String);
+	void RegisterSensitiveDetector(const G4GDMLAuxListType *, G4String);
+	void ReadVisProperty(const G4GDMLAuxListType *, G4String);
+	void SetVisProperty(const G4GDMLAuxListType *, G4String);
+	// void ReadVisAttribute(const G4GDMLAuxListType *);
+	G4VPhysicalVolume *fWorldPV;
+	G4LogicalVolume *fPMT_det;
+	G4LogicalVolume *fSCIN_det;
+	G4String fSCIN_name;
+	G4String fPMT_name;
 
+	void DefineMaterials();
 	MLCDetectorMessenger *fDetectorMessenger;
 
 	G4Box *fExperimentalHall_box;
@@ -74,9 +92,6 @@ private:
 	G4Box *fPhotocath;
 	G4Box *fDegrader_box;
 	G4Box *fFoil_box;
-	/*G4Box* fEdge_box1;
-	G4Box* fEdge_box2;
-	G4Box* fEdge_box3;*/
 
 	G4LogicalVolume *fScint_log;
 	G4LogicalVolume *fPSD_log;
@@ -85,9 +100,6 @@ private:
 	G4LogicalVolume *fPhotocath_log;
 	G4LogicalVolume *fDegrader_log;
 	G4LogicalVolume *fFoil_log;
-	/*G4LogicalVolume* fEdge_log1;
-	G4LogicalVolume* fEdge_log2;
-	G4LogicalVolume* fEdge_log3;*/
 
 	G4VPhysicalVolume *fHousing_phy;
 	G4VPhysicalVolume *fScint_phy;
